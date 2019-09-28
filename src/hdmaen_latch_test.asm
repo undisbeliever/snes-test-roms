@@ -22,10 +22,6 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
-include "util/reset_handler.inc"
-include "util/dma_forceblank.inc"
-
-
 constant VERTICAL_OFFSET = 6
 constant FIRST_HTIME     = 220
 constant LAST_HTIME      = FIRST_HTIME + 12
@@ -85,20 +81,90 @@ IrqHandler:
 au()
 iu()
 code()
-function Main {
-allocate(_hdmaen, shadow, 1)
+function ResetHandler {
+constant STACK_BOTTOM = __MEMORY__.ramBlocks.stack.end
+assert((STACK_BOTTOM & 0xffff) < 0x2000)
+assert((STACK_BOTTOM >> 16) == 0 || (STACK_BOTTOM >> 16) == 0x7e)
 
-    sep     #$30
+    jml     Reset
+Reset:
+
+    sei
+    clc
+    xce             // Switch to native mode
+
+    rep     #$38    // 16 bit A, 16 bit Index, Decimal mode off
+a16()
+i16()
+    ldx.w   #STACK_BOTTOM
+    txs             // Setup stack
+
+    lda.w   #$0000
+    tcd             // Reset Direct Page
+
+    // Set Data Bank
+    pea     (REGISTER_DB << 8) | $30
+    plp
+    plb
 a8()
 i8()
+
+	stz.w   NMITIMEN
+    stz.w   HDMAEN
+
+    // ROM access time
+    assert(ROM_SPEED.{ROM_SPEED} == ROM_SPEED.fast)
+    lda.b   #MEMSEL.fastrom
+    sta.w   MEMSEL
+
+    lda.b   #INIDISP.force
+    sta.b   INIDISP
+
+
+    // Registers $2105 - $210c
+    // BG settings and VRAM base addresses
+    ldx.b   #$210c - $2105
+-
+        stz.w   $2105,x
+        dex
+        bpl     -
+
+    // Registers $2123 - $2133
+    // Window Settings, BG/OBJ designation, Color Math, Screen Mode
+    // All disabled
+    ldx.b   #0x2133 - 0x2123
+-
+        stz.w   0x2123,x
+        dex
+        bpl     -
+
+    // reset all of the DMA registers
+    // Registers $4300 - $437f
+
+    ldx.b   #0x7f
+-
+        stz.w   0x4300,x
+        dex
+        bpl     -
+
+
+    jml     Main
+}
+
+
+a8()
+i8()
+code()
+function Main {
+allocate(_hdmaen, shadow, 1)
 
     stz.w   NMITIMEN
     stz.w   HDMAEN
 
     // Wait until VBlank
     -
-        assert(RDNMI.nmi == 0x80)
-        lda.w   RDNMI
+        assert(HVBJOY.vBlank == 0x80)
+        lda.w   HVBJOY
         bpl     -
 
 
