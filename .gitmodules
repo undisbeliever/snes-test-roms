@@ -1,0 +1,3 @@
+[submodule "tools/bass-untech"]
+	path = tools/bass-untech
+	url = https://github.com/undisbeliever/bass-untech
