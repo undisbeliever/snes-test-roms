@@ -35,10 +35,10 @@ all: directories $(BINARIES)
 
 
 ifeq ($(VANILLA_BASS), n)
-bin/%.sfc bin/%.symbols: src/*.asm bin/
+bin/%.sfc bin/%.symbols: src/%.asm bin/
 	$(bass) -strict -o $@ -sym $(@:.sfc=.symbols) $<
 else
-bin/%.sfc: src/*.asm bin/
+bin/%.sfc: src/%.asm bin/
 	$(bass) -strict -o $@ $<
 endif
 
