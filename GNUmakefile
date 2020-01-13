@@ -1,10 +1,9 @@
 
 rwildcard_all = $(foreach d,$(wildcard $(addsuffix /*,$(1))),$d $(call rwildcard_all, $d))
 
-ASM_SRC	   := $(wildcard src/*.asm)
-BINARIES   := $(patsubst src/%.asm,bin/%.sfc,$(ASM_SRC))
-
-INC_FILES  := $(wildcard src/*/*.inc src/*/*/*.inc)
+ASM_FILES        := $(wildcard src/*/*.asm)
+DIRS             := $(sort $(dir $(ASM_FILES)))
+COMMON_INC_FILES := $(wildcard src/*.inc src/_common/*.inc)
 
 
 # If VANILLA_BASS is not 'n' then the Makefile will use vanilla bass instead of bass-untech
@@ -28,21 +27,29 @@ endif
 .DELETE_ON_ERROR:
 .SUFFIXES:
 
-
 .PHONY: all
-all: directories $(BINARIES)
+all: directories roms
 
+
+# Create the .sfc target and prerequisites
+# Arguments: $1=binary, $2=asm file
+define _sfc_target
+BINARIES += $1
+$1: $2 $(wildcard $(dir $2)/*.inc) $(COMMON_INC_FILES) bin/
+endef
+$(foreach asm,$(ASM_FILES),$(eval $(call _sfc_target, bin/$(basename $(notdir $(asm))).sfc, $(asm))))
+
+.PHONY: roms
+roms: $(BINARIES)
 
 
 ifeq ($(VANILLA_BASS), n)
-bin/%.sfc bin/%.symbols: src/%.asm bin/
+bin/%.sfc: $(call find-sources, %)
 	$(bass) -strict -o $@ -sym $(@:.sfc=.symbols) $<
 else
-bin/%.sfc: src/%.asm bin/
+bin/%.sfc: $(call find-sources, %)
 	$(bass) -strict -o $@ $<
 endif
-
-$(BINARIES): $(INC_FILES)
 
 
 
