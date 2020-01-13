@@ -67,6 +67,41 @@ macro ToVramH(addr) {
 }
 
 
+// Transfers a block of memory to CGRAM
+// DMA: Uses DMA channel 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access registers
+// REQUIRES: screen blank
+macro ToCgram(addr, size) {
+    assert8a()
+    assert16i()
+
+    ldx.w   #{addr}
+    lda.b   #({addr}) >> 16
+    ldy.w   #{size}
+    jsr     Dma.ForceBlank.TransferToCgram
+}
+macro ToCgram(addr) {
+    Dma.ForceBlank.ToCgram({addr}, {addr}.size)
+}
+
+
+// Transfers a block of memory to OAM
+// DMA: Uses DMA channel 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access registers
+// REQUIRES: screen blank
+macro ToOam(addr, size) {
+    assert8a()
+    assert16i()
+
+    ldx.w   #{addr}
+    lda.b   #({addr}) >> 16
+    ldy.w   #{size}
+    jsr     Dma.ForceBlank.TransferToOam
+}
+macro ToOam(addr) {
+    Dma.ForceBlank.ToOam({addr}, {addr}.size)
+}
+
 
 // Clears a block of VRAM
 // DMA: Uses DMA channel 0
@@ -249,6 +284,58 @@ function TransferToVramH {
     sta.w   VMAIN
 
     ldx.w   #DMAP.direction.toPpu | DMAP.transfer.one | (VMDATAH << 8)
+    stx.w   DMAP0
+
+
+    lda.b   #MDMAEN.dma0
+    sta.w   MDMAEN
+
+    rts
+}
+
+
+// Transfers a block of memory to CGRAM
+// DMA: Uses DMA channel 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access registers
+// REQUIRES: screen blank
+//
+// INPUT: A:X address
+// INPUT: Y   size (in bytes)
+a8()
+i16()
+code()
+function TransferToCgram {
+    stx.w   A1T0
+    sta.w   A1B0
+    sty.w   DAS0
+
+    ldx.w   #DMAP.direction.toPpu | DMAP.transfer.one | (CGDATA << 8)
+    stx.w   DMAP0
+
+
+    lda.b   #MDMAEN.dma0
+    sta.w   MDMAEN
+
+    rts
+}
+
+
+// Transfers a block of memory to OAM
+// DMA: Uses DMA channel 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access registers
+// REQUIRES: screen blank
+//
+// INPUT: A:X address
+// INPUT: Y   size (in bytes)
+a8()
+i16()
+code()
+function TransferToOam {
+    stx.w   A1T0
+    sta.w   A1B0
+    sty.w   DAS0
+
+    ldx.w   #DMAP.direction.toPpu | DMAP.transfer.one | (OAMDATA << 8)
     stx.w   DMAP0
 
 
