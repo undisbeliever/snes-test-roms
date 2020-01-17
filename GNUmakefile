@@ -1,9 +1,30 @@
 
-rwildcard_all = $(foreach d,$(wildcard $(addsuffix /*,$(1))),$d $(call rwildcard_all, $d))
-
 ASM_FILES        := $(wildcard src/*/*.asm)
-DIRS             := $(sort $(dir $(ASM_FILES)))
 COMMON_INC_FILES := $(wildcard src/*.inc src/_common/*.inc)
+
+MODE7_TILES_SRC	 := $(wildcard resources/*/*mode7-tiles.png)
+8BPP_TILES_SRC	 := $(wildcard resources/*/*8bpp-tiles.png)
+4BPP_TILES_SRC	 := $(wildcard resources/*/*4bpp-tiles.png)
+2BPP_TILES_SRC	 := $(wildcard resources/*/*2bpp-tiles.png)
+BIN_RESOURCES_SRC:= $(wildcard resources/*/*.asm)
+
+MODE7_TILES      := $(patsubst resources/%.png,gen/%.tiles, $(MODE7_TILES_SRC))
+8BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(8BPP_TILES_SRC))
+4BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(4BPP_TILES_SRC))
+2BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(2BPP_TILES_SRC))
+BIN_RESOURCES    := $(patsubst resources/%.asm,gen/%.bin, $(BIN_RESOURCES_SRC))
+
+MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
+8BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(8BPP_TILES_SRC))
+4BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(4BPP_TILES_SRC))
+2BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(2BPP_TILES_SRC))
+
+
+RESOURCES := $(MODE7_TILES) $(MODE7_PALETTES) \
+             $(8BPP_TILES) $(8BPP_PALETTES) \
+             $(4BPP_TILES) $(4BPP_PALETTES) \
+             $(2BPP_TILES) $(2BPP_PALETTES) \
+             $(BIN_RESOURCES)
 
 
 # If VANILLA_BASS is not 'n' then the Makefile will use vanilla bass instead of bass-untech
@@ -29,6 +50,7 @@ endif
 
 .PHONY: all
 all: directories roms
+
 
 
 # Create the .sfc target and prerequisites
@@ -57,6 +79,7 @@ ifdef BASS_DIR
   tools: bass
 
   $(BINARIES): bass
+  $(BIN_RESOURCES): bass
 
   .INTERMEDIATE: bass
   bass: $(call rwildcard_all $(BASS_DIR))
@@ -64,6 +87,28 @@ ifdef BASS_DIR
 
   $(bass): bass
 endif
+
+
+
+.PHONY: resources
+resources: $(RESOURCES)
+$(BINARIES): $(RESOURCES)
+
+gen/%-2bpp-tiles.tiles gen/%-2bpp-tiles.pal: resources/%-2bpp-tiles.png
+	python3 tools/png2snes.py -f 2bpp -t gen/$*-2bpp-tiles.tiles -p gen/$*-2bpp-tiles.pal $<
+
+gen/%-4bpp-tiles.tiles gen/%-4bpp-tiles.pal: resources/%-4bpp-tiles.png
+	python3 tools/png2snes.py -f 4bpp -t gen/$*-4bpp-tiles.tiles -p gen/$*-4bpp-tiles.pal $<
+
+gen/%-8bpp-tiles.tiles gen/%-8bpp-tiles.pal: resources/%-8bpp-tiles.png
+	python3 tools/png2snes.py -f 8bpp -t gen/$*-8bpp-tiles.tiles -p gen/$*-8bpp-tiles.pal $<
+
+gen/%-mode7-tiles.tiles gen/%-mode7-tiles.pal: resources/%-mode7-tiles.png
+	python3 tools/png2snes.py -f mode7 -t gen/$*-mode7-tiles.tiles -p gen/$*-mode7-tiles.pal $<
+
+$(BIN_RESOURCES): gen/%.bin: resources/%.asm
+	$(bass) -strict -o $@ $<
+
 
 
 .PHONY: directories
