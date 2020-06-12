@@ -67,7 +67,7 @@ roms: $(BINARIES)
 
 ifeq ($(VANILLA_BASS), n)
 bin/%.sfc: $(call find-sources, %)
-	$(bass) -strict -o $@ -sym $(@:.sfc=.symbols) $<
+	$(bass) -strict -o $@ -sym $(@:.sfc=.sym) $<
 else
 bin/%.sfc: $(call find-sources, %)
 	$(bass) -strict -o $@ $<
