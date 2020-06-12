@@ -21,6 +21,8 @@ createCodeBlock(code,       0x808000, 0x80ffaf)
 createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
+include "../nmi_handler.inc"
+
 
 constant VERTICAL_OFFSET = 6
 constant FIRST_HTIME     = 220
@@ -52,7 +54,6 @@ macro WaitUntilHblankEnd() {
 au()
 iu()
 code()
-NmiHandler:
 BreakHandler:
 CopHandler:
 EmptyHandler:
@@ -158,11 +159,13 @@ code()
 function Main {
 allocate(_hdmaen, shadow, 1)
 
-    stz.w   NMITIMEN
+    lda.b   #NMITIMEN.vBlank
+    sta.w   NMITIMEN
     stz.w   HDMAEN
 
     // Wait until VBlank
     -
+        wai
         assert(HVBJOY.vBlank == 0x80)
         lda.w   HVBJOY
         bpl     -

@@ -24,6 +24,7 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
+include "../nmi_handler.inc"
 include "../dma_forceblank.inc"
 
 
@@ -62,16 +63,6 @@ a8()
 
 
 
-// NMI ISR
-// (only used for wai instructions)
-au()
-iu()
-code()
-NmiHandler:
-    rti
-
-
-
 au()
 iu()
 code()
@@ -104,7 +95,7 @@ i16()
     ldx.w   #339 - 80
     stx.w   HTIME
 
-    lda.b   #NMITIMEN.hCounter
+    lda.b   #NMITIMEN.hCounter | NMITIMEN.vBlank
     sta.w   NMITIMEN
 
     cli

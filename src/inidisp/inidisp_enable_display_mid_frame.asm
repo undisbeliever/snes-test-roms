@@ -26,6 +26,7 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
+include "../nmi_handler.inc"
 include "../dma_forceblank.inc"
 
 // BG2-4 uses WADDR 0
@@ -88,15 +89,6 @@ a8()
 -
     bra     -
 
-
-
-// NMI ISR
-// (only used for wai instructions)
-au()
-iu()
-code()
-NmiHandler:
-    rti
 
 
 // IRQ ISR
