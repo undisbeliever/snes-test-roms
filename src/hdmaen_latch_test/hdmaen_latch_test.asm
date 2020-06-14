@@ -9,7 +9,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "HDMAEN LATCH TEST"
-define VERSION = 0
+define VERSION = 2
 
 architecture wdc65816-strict
 
