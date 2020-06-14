@@ -56,8 +56,8 @@ allocate(irq_y, shadow, 2)
 constant IRQ_X_MAX = 339
 constant IRQ_Y_MAX = 261
 
-constant IRQ_X_START = 18
-constant IRQ_Y_START = 100
+constant IRQ_X_START = 15
+constant IRQ_Y_START = 89
 
 
 // Break ISR
