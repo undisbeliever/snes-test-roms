@@ -2,6 +2,7 @@
 //
 // Controls:
 //          D-pad: move enable display time
+//         Select: Move enable display to H-Blank
 //              A: Change background/tile modes
 //
 //
@@ -431,8 +432,24 @@ i16()
         ldy.w   irq_y
 
         lda.w   joypad + 1
+
+        bit.b   #JOYH.select
+        beq     +
+            // select pressed
+
+            // Mesen-S event viewer shows 24 dots between IRQ triggering and the store to INIDISP.
+            // -16 dots for tile buffer pre-load.
+            // -8 dots produces the most interesting glitches on my SFC.
+
+            cpx.w   #256
+            ldx.w   #IRQ_X_MAX - 24 - 16 - 8
+
+            // Go to the previous scanline if not in VBlank
+            bcc     MoveUp
+        +
         bit.b   #JOYH.up
         beq     +
+        MoveUp:
             // up pressed
             dey
             bpl     +
