@@ -212,13 +212,15 @@ macro SetupPpu() {
     sta.w   OBSEL
 
 
-    // Fill bottom half of CGRAM with a red pattern
+    // Fill bottom half of CGRAM with a red pattern.
+    // 16 colour gradient of mid-red to bright-red, repeated 8 times
     stz.w   CGADD
 
     ldx.w   #128
     -
         txa
         dec
+        eor.b   #0xff
         and.b   #0x0f
         ora.b   #0x10
         sta.w   CGDATA
@@ -227,31 +229,34 @@ macro SetupPpu() {
         dex
         bne     -
 
-    // Fill top half of CGRAM with a bright green pattern
-        sep     #$30
-        rep     #$20
-    a16()
-    i8()
-        ldx.b   #128
-        -
-            txa
-            dec
-            and.w   #0x000f
-            ora.w   #0x0010
-            asl
-            asl
-            asl
-            asl
-            asl
 
-            tay
-            sty.w   CGDATA
-            xba
-            tay
-            sty.w   CGDATA
+    // Fill top half of CGRAM with a bright green pattern.
+    // 16 colour gradient of mid-green to bright-green, repeated 8 times
+    sep     #$30
+    rep     #$20
+a16()
+i8()
+    ldx.b   #128
+    -
+        txa
+        dec
+        eor.w   #0xffff
+        and.w   #0x000f
+        ora.w   #0x0010
+        asl
+        asl
+        asl
+        asl
+        asl
 
-            dex
-            bne     -
+        tay
+        sty.w   CGDATA
+        xba
+        tay
+        sty.w   CGDATA
+
+        dex
+        bne     -
 
     rep     #$30
     sep     #$20
