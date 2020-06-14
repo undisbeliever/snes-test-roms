@@ -508,13 +508,13 @@ namespace DisplayModeSettings {
         dw  Resources.{palette}.size
     }
 
-    _entry(Tiles_8bpp, Palette_8bpp, 3, TM.obj)
-    _entry(Tiles_4bpp, Palette_4bpp, 1, TM.bg1)
     _entry(Tiles_4bpp, Palette_4bpp, 1, TM.bg1 | TM.obj)
+    _entry(Tiles_4bpp, Palette_4bpp, 1, TM.bg1)
     _entry(Tiles_2bpp, Palette_2bpp, 0, TM.bg1 | TM.obj)
     _entry(Tiles_2bpp, Palette_2bpp, 0, TM.bg1)
     _entry(Tiles_8bpp, Palette_8bpp, 3, TM.bg1 | TM.obj)
     _entry(Tiles_8bpp, Palette_8bpp, 3, TM.bg1)
+    _entry(Tiles_8bpp, Palette_8bpp, 3, TM.obj)
 
     constant TableSize = pc() - DisplayModeSettings.BgMode
     assert(TableSize % size == 0)
