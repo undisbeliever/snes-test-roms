@@ -12,7 +12,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "BRIGHTNESS DELAY TEST"
-define VERSION = 2
+define VERSION = 3
 
 architecture wdc65816-strict
 
@@ -30,6 +30,14 @@ include "../dma_forceblank.inc"
 
 // The number of scanlines between each brightness test
 constant BRIGHTNESS_TEST_HEIGHT = 32
+
+
+// The horizontal dot position to trigger IRQ
+//
+// This value is chosen to ensure that:
+//  1) The SLHV latch is triggered after h-blank
+//  2) The INIDISP store occurs before Work RAM refresh
+constant IRQ_X_POS = 339 - 30
 
 
 // Break ISR
@@ -76,6 +84,7 @@ i16()
     lda.b   #INIDISP.force | 0xf
     sta.w   INIDISP
 
+
     // Fill CGRAM with white
     stz.w   CGADD
 
@@ -91,8 +100,8 @@ i16()
 
 
 
-    // Enable IRQ at HTIME=0
-    ldx.w   #339 - 80
+    // Enable Horizontal IRQ
+    ldx.w   #IRQ_X_POS
     stx.w   HTIME
 
     lda.b   #NMITIMEN.hCounter | NMITIMEN.vBlank
