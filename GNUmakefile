@@ -40,7 +40,7 @@ else ifneq ($(LOCAL_TOOLS), n)
 endif
 
 ifndef bass
-  BASS_DIR     := tools/bass-untech
+  BASS_DIR     := bass-untech
   bass         := $(BASS_DIR)/bass/out/bass-untech
 endif
 
