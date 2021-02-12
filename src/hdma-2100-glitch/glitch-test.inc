@@ -1,4 +1,4 @@
-// Tests that writing to $21ff and $2100 using the same HDMA channel glitches sprites.
+// Tests if writing to $2100 using HDMA can glitch sprites.
 //
 // You may need to reset your console a few times for the glitch to appear.
 //
@@ -10,8 +10,6 @@ define MEMORY_MAP = LOROM
 define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
-define ROM_NAME = "HDMA 21ff 2100 GLITCH"
-define VERSION = 1
 
 architecture wdc65816-strict
 
@@ -246,34 +244,6 @@ i16()
 
 
 
-// Setup HDMA Transfer to $21ff and $2100
-// REQUIRES: 8 bit A, 16 bit Index, DB access registers
-macro SetupHdma() {
-    assert8a()
-    assert16i()
-
-    stz.w   HDMAEN
-
-
-    lda.b   #DMAP.direction.toPpu | DMAP.addressing.absolute | DMAP.transfer.two
-    sta.w   DMAP0
-
-    lda.b   #0xff
-    sta.w   BBAD0
-
-    ldx.w   #HdmaTable
-    stx.w   A1T0
-
-    lda.b   #HdmaTable >> 16
-    sta.w   A1B0
-
-
-    lda.b   #HDMAEN.dma0
-    sta.w   HDMAEN
-}
-
-
-
 au()
 iu()
 code()
@@ -302,24 +272,6 @@ i16()
 
 
 
-HdmaTable:
-    variable n = 0
-    while n < 256 {
-        db  1
-            //  21ff  2100
-            db  0xff, 0x0f
-
-        db  1
-            //  21ff  2100
-            db  0xff, 0x0a
-
-        n = n + 1
-    }
-
-    db  0
-
-
-
 namespace Resources {
     insert Bg1_Tilemap,  "../../gen/example-backgrounds/bricks-tilemap.bin"
 
@@ -331,5 +283,4 @@ namespace Resources {
     insert Obj_Oam,      "../../gen/example-backgrounds/obj-oam.bin"
 }
 
-finalizeMemory()
 
