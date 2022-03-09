@@ -83,7 +83,7 @@ ifdef BASS_DIR
 
   .INTERMEDIATE: bass
   bass: $(call rwildcard_all $(BASS_DIR))
-	$(MAKE) -C "$(BASS_DIR)/bass"
+	$(MAKE) -C '$(BASS_DIR)/bass'
 
   $(bass): bass
 endif
@@ -138,6 +138,6 @@ ifdef BASS_DIR
 
   .PHONY: clean-tools
   clean-tools:
-	$(MAKE) -C "$(BASS_DIR)/bass" clean
+	$(MAKE) -C '$(BASS_DIR)/bass' clean
 endif
 
