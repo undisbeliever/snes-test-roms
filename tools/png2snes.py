@@ -8,6 +8,9 @@ import argparse
 import struct
 
 
+from _snes import convert_rgb_color, convert_snes_tileset
+
+
 def convert_palette(palette, max_colors):
     if not palette:
         raise ValueError('Image must have a palette')
@@ -24,13 +27,7 @@ def convert_palette(palette, max_colors):
     snes_pal_data = bytearray()
 
     for c in struct.iter_unpack('BBB', pdata):
-        r, g, b = c
-
-        b = (b >> 3) & 31;
-        g = (g >> 3) & 31;
-        r = (r >> 3) & 31;
-
-        u16 = (b << 10) | (g << 5) | r;
+        u16 = convert_rgb_color(c)
 
         snes_pal_data.append(u16 & 0xff);
         snes_pal_data.append(u16 >> 8);
@@ -67,6 +64,7 @@ def extract_tiles(image):
             yield tile_data
 
 
+
 def convert_mode7_tileset(tiles):
     out = bytes().join(tiles)
 
@@ -75,22 +73,6 @@ def convert_mode7_tileset(tiles):
 
     return out
 
-
-def convert_snes_tileset(tiles, bpp):
-    out = bytearray()
-
-    for tile in tiles:
-        for b in range(0, bpp, 2):
-            for y in range(0, 8):
-                for bi in range(b, min(b+2, bpp)):
-                    byte = 0
-                    mask = 1 << bi
-                    for x in range(0, 8):
-                        byte <<= 1
-                        if tile[x + y * 8] & mask:
-                            byte |= 1
-                    out.append(byte)
-    return out
 
 FORMATS = {
     'm7'    : convert_mode7_tileset,
