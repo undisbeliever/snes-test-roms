@@ -46,7 +46,7 @@ allocate(inidisp_shadow, shadow, 1)
 
 // Execute V-Blank Routine flag
 //
-// If zero then the VBlank routine will not be executed.
+// The VBlank routine will be executed if this value is non-zero.
 //
 // (byte flag)
 allocate(vBlankFlag, shadow, 1)
@@ -119,7 +119,7 @@ i16()
     sep     #$20
 a8()
 
-    // Only execute the VBlank routine if the vBlankFlag is clear
+    // Only execute the VBlank routine if `vBlankFlag` is non-zero.
     // (prevents corruption during force-blank setup or a lag frame)
     lda.w   vBlankFlag
     bne     +
@@ -135,12 +135,19 @@ a8()
         // VBlank routine goes here
 
 
+        // Only write to `INIDISP` when `vBlankFlag` is set.
+        //
+        // We do not want to accidentally enable/disable the screen (or change the brightness)
+        // in the middle of a setup routine or a lag-frame.
+        assert8a()
+        lda.w   inidisp_shadow
+        sta.w   INIDISP
+
+
+        stz.w   vBlankFlag
+
+
 EndVBlankRoutine:
-
-
-    assert8a()
-    lda.w   inidisp_shadow
-    sta.w   INIDISP
 
 
     rep     #$30
@@ -179,6 +186,10 @@ function WaitFrame {
     php
     sep     #$20
 a8()
+
+    lda.b   #1
+    sta.w   vBlankFlag
+
 
     // Loop until frameCounter has changed
     lda.w   frameCounter
