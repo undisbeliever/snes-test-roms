@@ -23,7 +23,7 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
-include "wait.inc"
+include "../wait.inc"
 
 
 constant VERTICAL_OFFSET    = 6

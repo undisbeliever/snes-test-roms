@@ -1,34 +1,21 @@
-// Tests if writing to $2100 using HDMA can glitch sprites.
-//
-// You may need to reset your console a few times for the glitch to appear.
-//
 // Copyright (c) 2021, Marcus Rowe <undisbeliever@gmail.com>.
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
-
 
 define MEMORY_MAP = LOROM
 define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 
+
 architecture wdc65816-strict
 
-include "../common.inc"
+include "../../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
-
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
-
-include "../reset_handler.inc"
-include "../dma_forceblank.inc"
-
-
-// BG2-4 uses WADDR 0
-constant VRAM_OBJ_TILES_WADDR = 0x6000
-constant VRAM_BG1_TILES_WADDR = 0x1000
-constant VRAM_BG1_MAP_WADDR   = 0x1400
-
+include "../../reset_handler.inc"
+include "../../dma_forceblank.inc"
 
 
 // Break ISR
@@ -38,6 +25,7 @@ iu()
 code()
 CopHandler:
 IrqHandler:
+NmiHandler:
 EmptyHandler:
 BreakHandler:
 function RSOD {
@@ -65,42 +53,10 @@ a8()
 
 
 
-// NMI handler - does nothing
-au()
-iu()
-code()
-function NmiHandler {
-    rti
-}
-
-
-
-// Waits until the start of VBlank
-// REQUIRES: NMI enabled
-au()
-iu()
-code()
-function WaitFrame {
-    php
-    sep     #$20
-a8()
-    // Wait until end of vBlank (if in vBlank)
-    -
-        lda.l   HVBJOY
-        bmi     -
-
-    // Wait until start of next vBlank
-    -
-        wai
-        assert(HVBJOY.vBlank == 0x80)
-        lda.l   HVBJOY
-        bpl     -
-
-    plp
-
-    rts
-}
-
+// BG2-4 uses WADDR 0
+constant VRAM_OBJ_TILES_WADDR = 0x6000
+constant VRAM_BG1_TILES_WADDR = 0x1000
+constant VRAM_BG1_MAP_WADDR   = 0x1400
 
 
 // Setup and initialize the PPU
@@ -110,11 +66,7 @@ macro SetupPpu() {
     assert8a()
     assert16i()
 
-    // Enable NMI and autoJoy (just in case)
-    lda.b   #NMITIMEN.vBlank | NMITIMEN.autoJoy
-    sta.w   NMITIMEN
-
-    jsr     WaitFrame
+    stz.w   NMITIMEN
 
 
     // Set PPU registers
@@ -235,52 +187,18 @@ i16()
     // Transfer palette to CGRAM
     stz.w   CGADD
     Dma.ForceBlank.ToCgram(Resources.Palette_4bpp)
-
-
-    // Enable VBlank (required for WaitFrame)
-    lda.b   #NMITIMEN.vBlank
-    sta.w   NMITIMEN
 }
-
-
-
-au()
-iu()
-code()
-function Main {
-    rep     #$30
-    sep     #$20
-a8()
-i16()
-    sei
-
-
-    SetupPpu()
-
-    jsr     WaitFrame
-
-    SetupHdma()
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
-
-    // Glitch is more likely to appear if I spinloop
-    SpinLoop:
-        bra     SpinLoop
-}
-
 
 
 namespace Resources {
-    insert Bg1_Tilemap,  "../../gen/example-backgrounds/bricks-tilemap.bin"
+    insert Bg1_Tilemap,  "../../../gen/example-backgrounds/bricks-tilemap.bin"
 
-    insert Tiles_4bpp,   "../../gen/example-backgrounds/bricks-4bpp-tiles.tiles"
-    insert Palette_4bpp, "../../gen/example-backgrounds/bricks-4bpp-tiles.pal"
+    insert Tiles_4bpp,   "../../../gen/example-backgrounds/bricks-4bpp-tiles.tiles"
+    insert Palette_4bpp, "../../../gen/example-backgrounds/bricks-4bpp-tiles.pal"
 
-    insert Obj_Tiles,    "../../gen/example-backgrounds/obj-4bpp-tiles.tiles"
-    insert Obj_Palette,  "../../gen/example-backgrounds/obj-4bpp-tiles.pal"
-    insert Obj_Oam,      "../../gen/example-backgrounds/obj-oam.bin"
+    insert Obj_Tiles,    "../../../gen/example-backgrounds/obj-4bpp-tiles.tiles"
+    insert Obj_Palette,  "../../../gen/example-backgrounds/obj-4bpp-tiles.pal"
+    insert Obj_Oam,      "../../../gen/example-backgrounds/obj-oam.bin"
 }
 
 

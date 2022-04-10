@@ -1,5 +1,5 @@
 
-ASM_FILES        := $(wildcard src/*/*.asm)
+ASM_FILES        := $(wildcard src/*/*.asm src/*/*/*.asm)
 COMMON_INC_FILES := $(wildcard src/*.inc src/_common/*.inc)
 
 MODE7_TILES_SRC	 := $(wildcard resources/*/*mode7-tiles.png)

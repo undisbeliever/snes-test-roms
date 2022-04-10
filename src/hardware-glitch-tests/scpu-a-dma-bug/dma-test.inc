@@ -43,7 +43,7 @@ define VERSION = 0
 architecture wdc65816-strict
 
 
-include "../common.inc"
+include "../../common.inc"
 
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
@@ -68,8 +68,8 @@ if !{defined hdma_dmap} {
 
 
 // ::TODO a basic reset file that doesn't use DMA routines ::
-include "../reset_handler.inc"
-include "../dma_forceblank.inc"
+include "../../reset_handler.inc"
+include "../../dma_forceblank.inc"
 
 
 
