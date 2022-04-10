@@ -15,7 +15,7 @@
 define ROM_NAME = "INIDISP D7 GLITCH TEST"
 define VERSION = 1
 
-include "_inidisp_d7_common.inc"
+include "_inidisp-hammer-common.inc"
 
 
 au()

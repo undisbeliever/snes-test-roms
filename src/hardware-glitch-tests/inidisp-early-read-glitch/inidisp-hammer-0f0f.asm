@@ -1,4 +1,6 @@
-// Constantly writes 0x0f to address $802100
+// Constantly writes 0x0f0f to $20ff (0x0f to $20ff, 0x0f to $2100)
+//
+// This test does not show any glitches
 //
 // Copyright (c) 2021, Marcus Rowe <undisbeliever@gmail.com>.
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
@@ -7,7 +9,7 @@
 define ROM_NAME = "INIDISP HAMMER TEST"
 define VERSION = 1
 
-include "_inidisp_d7_common.inc"
+include "_inidisp-hammer-common.inc"
 
 
 au()
@@ -23,10 +25,9 @@ i16()
     SetupPpu()
 
 
-    lda.b   #0x0f
-
+    ldx.w   #0x0f0f
     MainLoop:
-        sta.l   0x802100
+        stx.w   INIDISP - 1
 
         bra     MainLoop
 }

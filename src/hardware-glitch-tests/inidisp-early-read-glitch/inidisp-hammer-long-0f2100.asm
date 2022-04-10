@@ -10,7 +10,7 @@
 define ROM_NAME = "INIDISP HAMMER TEST"
 define VERSION = 1
 
-include "_inidisp_d7_common.inc"
+include "_inidisp-hammer-common.inc"
 
 
 au()
