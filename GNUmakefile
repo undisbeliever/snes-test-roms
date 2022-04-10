@@ -22,6 +22,8 @@ MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
 4BPP_IMAGES	 := inidisp-fadein-fadeout/game inidisp-fadein-fadeout/map
 
 
+BINARIES  := $(patsubst src/%.asm,bin/%.sfc,$(ASM_FILES))
+
 RESOURCES := $(MODE7_TILES) $(MODE7_PALETTES) \
              $(8BPP_TILES) $(8BPP_PALETTES) \
              $(4BPP_TILES) $(4BPP_PALETTES) \
@@ -55,24 +57,15 @@ endif
 all: directories roms
 
 
-
-# Create the .sfc target and prerequisites
-# Arguments: $1=binary, $2=asm file
-define _sfc_target
-BINARIES += $1
-$1: $2 $(wildcard $(dir $2)/*.inc) $(COMMON_INC_FILES) bin/
-endef
-$(foreach asm,$(ASM_FILES),$(eval $(call _sfc_target, bin/$(basename $(notdir $(asm))).sfc, $(asm))))
-
 .PHONY: roms
 roms: $(BINARIES)
 
 
 ifeq ($(VANILLA_BASS), n)
-bin/%.sfc: $(call find-sources, %)
+bin/%.sfc: src/%.asm
 	$(bass) -strict -o $@ -sym $(@:.sfc=.sym) $<
 else
-bin/%.sfc: $(call find-sources, %)
+bin/%.sfc: src/%.asm
 	$(bass) -strict -o $@ $<
 endif
 
