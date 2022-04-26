@@ -135,6 +135,40 @@ function ClearVram {
 }
 
 
+
+// Clear the low byte of a block of VRAM
+// DMA: Uses DMA channel 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access registers
+// REQUIRES: screen blank
+//
+// INPUT: X - vram address
+// INPUT: Y - size (in bytes to clear)
+a8()
+i16()
+code()
+function ClearVramL {
+    stx.w   VMADD
+    sty.w   DAS0
+
+    lda.b   #VMAIN.incrementMode.low | VMAIN.increment.by1
+    sta.w   VMAIN
+
+    ldy.w   #DMAP.direction.toPpu | DMAP.fixed | DMAP.transfer.one | (VMDATAL << 8)
+    sty.w   DMAP0       // also sets BBAD0
+
+    ldx.w   #SnesHeader.EmptyBytes
+    stx.w   A1T0
+    stz.w   A1B0
+
+
+    lda.b   #MDMAEN.dma0
+    sta.w   MDMAEN
+
+    rts
+}
+
+
+
 // Clear the high byte of a block of VRAM
 // DMA: Uses DMA channel 0
 // REQUIRES: 8 bit A, 16 bit Index, DB access registers
