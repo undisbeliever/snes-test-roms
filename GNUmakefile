@@ -38,6 +38,7 @@ VANILLA_BASS   ?= n
 LOCAL_TOOLS    ?= n
 
 
+
 ifneq ($(VANILLA_BASS), n)
   bass         ?= bass
 else ifneq ($(LOCAL_TOOLS), n)
@@ -83,6 +84,12 @@ ifdef BASS_DIR
 
   $(bass): bass
 endif
+
+
+VMAIN_REMAPPING_INC_FILES := $(wildcard src/vmain-address-remapping/*.inc)
+VMAIN_REMAPPING_BINARIES := $(filter bin/vmain-address-remapping/%.sfc, $(BINARIES))
+
+$(VMAIN_REMAPPING_BINARIES): $(VMAIN_REMAPPING_INC_FILES)
 
 
 
