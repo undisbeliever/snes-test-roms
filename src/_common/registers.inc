@@ -3,7 +3,8 @@
 //
 // SNES Register Defines.
 //
-// Names and flags taken from Anomie's SNES Documents
+// Names and flags taken from Anomie's SNES Documents and nocash's
+// fullsnes document.
 //
 //
 // This file is part of the UnTech Game Engine.
@@ -448,7 +449,6 @@ constant M7VOFS = 0x210E
 // ii = Address increment amount
 // mm = Address remapping
 //
-// According to the manual only `ii` or `mm` should be set.
 constant VMAIN = 0x2115
 
 namespace VMAIN {
@@ -463,9 +463,9 @@ namespace VMAIN {
     namespace remap {
         constant mask = %00001100
 
-        constant for32 = %00000100
-        constant for64 = %00001000
-        constant for128 = %00001100
+        constant _8bits = %00000100
+        constant _9bits = %00001000
+        constant _10bits = %00001100
     }
 
     namespace incrementMode {
