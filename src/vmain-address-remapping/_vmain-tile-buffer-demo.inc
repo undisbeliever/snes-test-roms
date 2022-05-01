@@ -56,11 +56,35 @@ constant DISPLAY_HEIGHT = 224
 
 
 // Temporary zero-page word variables
+// Used by the SetPixel routine
 // (word)
 allocate(zpTmp0, zeropage, 2)
 allocate(zpTmp1, zeropage, 2)
 allocate(zpTmp2, zeropage, 2)
 allocate(zpTmp3, zeropage, 2)
+
+
+
+// Byte variables used by DrawLine routine
+allocate(DrawLine.zpTmpB0, zeropage, 1)
+allocate(DrawLine.zpTmpB1, zeropage, 1)
+allocate(DrawLine.zpTmpB2, zeropage, 1)
+allocate(DrawLine.zpTmpB3, zeropage, 1)
+allocate(DrawLine.zpTmpB4, zeropage, 1)
+allocate(DrawLine.zpTmpB5, zeropage, 1)
+
+// Word variables used by the DrawLine routine
+allocate(DrawLine.zpWord0, zeropage, 2)
+allocate(DrawLine.zpWord1, zeropage, 2)
+allocate(DrawLine.zpWord2, zeropage, 2)
+allocate(DrawLine.zpWord3, zeropage, 2)
+allocate(DrawLine.zpWord4, zeropage, 2)
+
+
+// Current position in `LineList`
+// (word index)
+allocate(lineIndex, shadow, 2)
+
 
 
 
@@ -130,7 +154,7 @@ i16()
 
     // Transfer data to PPU
     stz.w   CGADD
-    Dma.ForceBlank.ToCgram(Resources.Palette)
+    Dma.ForceBlank.ToCgram(Palette)
 
     jsr     GenerateTilemap
 
@@ -237,84 +261,19 @@ i16()
 code()
 function DrawImage {
 
-    // Just drawing a dummy image for now
-    //
-    // ::TODO Add a line drawing algorithm::
-    // ::TODO Create a list of lines to draw::
+    ldx.w   #0
+    Loop:
+        stx.w   lineIndex
+        jsr     DrawLine
 
-
-    lda.b   #0
-    -
-        pha
-            ldx.w   #235
-            tay
-            lda.b   #1
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
-
-
-    lda.b   #0
-    -
-        pha
-            ldx.w   #15
-            tay
-            lda.b   #2
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
-
-
-    lda.b   #0
-    -
-        pha
-            tax
-            ldy.w   #7
-            lda.b   #3
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
-
-
-    lda.b   #0
-    -
-        pha
-            tax
-            ldy.w   #202
-            lda.b   #4
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
-
-
-    lda.b   #0
-    -
-        pha
-            tax
-            lsr
-            tay
-            lda.b   #5
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
-
-
-    lda.b   #0
-    -
-        pha
-            tay
-            lsr
-            tax
-            lda.b   #6
-            jsr     SetPixelWithBoundsChecking
-        pla
-        inc
-        bne     -
+        ldx.w   lineIndex
+        inx
+        inx
+        inx
+        inx
+        inx
+        cpx.w   #LineList.size
+        bcc     Loop
 
     rts
 }
@@ -342,6 +301,275 @@ a16()
     bcs     +
         jmp     SetPixel
     +
+    rts
+}
+
+
+code()
+namespace DrawLine {
+a8()
+i16()
+InvalidInput:
+    rts
+}
+
+
+
+// Draw a line to the tile buffer
+//
+// REQUIRES: 8 bit A, 16 bit Index, DP = 0, DB = 0x7e
+//
+// INPUT: X = index into `LineList`
+a8()
+i16()
+code()
+function DrawLine {
+
+constant _xPos      = zpTmpB0
+constant _yPos      = zpTmpB1
+constant _targetX   = zpTmpB2
+constant _targetY   = zpTmpB3
+
+constant _colour    = zpTmpB4
+
+constant _iy        = zpTmpB5
+
+
+// Word variables
+// _dx and _dy are word variables as they simplify the creation of _a, _b & _d below
+constant _dx        = zpWord0
+constant _dy        = zpWord1
+
+constant _a         = zpWord2
+constant _b         = zpWord3
+constant _d         = zpWord4
+
+
+    // Line drawing code is based on Bresenham's line algorithm.
+
+    // Load variables from Line List (exiting early if y1 or y2 id out of bounds)
+    lda.l   LineList.x1,x
+    sta.b   _xPos
+
+    lda.l   LineList.y1,x
+    cmp.b   #DISPLAY_HEIGHT
+    bcs     InvalidInput
+    sta.b   _yPos
+
+    lda.l   LineList.x2,x
+    sta.b   _targetX
+
+    lda.l   LineList.y2,x
+    cmp.b   #DISPLAY_HEIGHT
+    bcs     InvalidInput
+    sta.b   _targetY
+
+    lda.l   LineList.colour,x
+    sta.b   _colour
+
+
+
+    // if _xPos >= _targetX:
+    //      swap position and target
+    // _dx = abs(_xPos - targetX)
+    lda.b   _xPos
+    sec
+    sbc.b   _targetX
+    bcc     +
+        // _xPos >= _targetX
+        sta.b   _dx
+
+        // Swap position and target
+        assert16i()
+        assert(_xPos + 1 == _yPos)
+        assert(_targetX + 1 == _targetY)
+        ldx.b   _xPos
+        ldy.b   _targetX
+
+        sty.b   _xPos
+        stx.b   _targetX
+
+        bra     ++
+
+    +
+        // _xPos < _targetX
+
+        eor.b   #0xff
+        inc
+        sta.b   _dx
+    +
+    stz.b   _dx + 1
+
+
+    // _dy = abs(_yPos - targetY)
+    // _iy = _yPos < targetY ? 1 : -1
+    lda.b   _yPos
+    sec
+    sbc.b   _targetY
+    bcc     +
+        // _yPos >= _targetY
+        sta.b   _dy
+
+        lda.b   #-1
+
+        bra     ++
+
+    +
+        // _yPos < _targetY
+
+        eor.b   #0xff
+        inc
+        sta.b   _dy
+
+        lda.b   #1
+    +
+    sta.b   _iy
+    stz.b   _dy + 1
+
+
+
+    lda.b   _dx
+    cmp.b   _dy
+    bcc     SteepLine
+        // Shallow Line dx >= dy
+
+        // _a = (_dy - _dx) * 2
+        // _b = _dy * 2
+        // _d = _b - dx
+        rep     #$30
+    a16()
+        lda.b   _dy
+        sec
+        sbc.b   _dx
+        asl
+        sta.b   _a
+
+        lda.b   _dy
+        asl
+        sta.b   _b
+
+        sec
+        sbc.b   _dx
+        sta.b   _d
+
+
+    a16()
+        ShallowLoop:
+            sep     #$20
+        a8()
+
+            ldx.b   _xPos
+            ldy.b   _yPos
+            lda.b   _colour
+            jsr     SetPixel
+
+            lda.b   _xPos
+            cmp.b   _targetX
+            beq     Return
+
+            inc
+            sta.b   _xPos
+
+            rep     #$20
+        a16()
+
+            lda.b   _d
+            bmi     +
+            beq     +
+                // _d > 0
+                clc
+                adc.b   _a
+                sta.b   _d
+
+                sep     #$20
+            a8()
+                lda.b   _yPos
+                clc
+                adc.b   _iy
+                sta.b   _yPos
+                cmp.b   #DISPLAY_HEIGHT
+                bcs     Return
+
+                bra     ShallowLoop
+
+            +
+            a16()
+                // _d <= 0
+                clc
+                adc.b   _b
+                sta.b   _d
+
+                bra     ShallowLoop
+
+
+    SteepLine:
+        // dx < dy
+
+        // _a = (_dx - _dy) * 2
+        // _b = _dx * 2
+        // _d = _b - dy
+        rep     #$30
+    a16()
+        lda.b   _dx
+        sec
+        sbc.b   _dy
+        asl
+        sta.b   _a
+
+        lda.b   _dx
+        asl
+        sta.b   _b
+
+        sec
+        sbc.b   _dy
+        sta.b   _d
+
+    a16()
+        SteepLoop:
+            sep     #$20
+        a8()
+            ldx.b   _xPos
+            ldy.b   _yPos
+            lda.b   _colour
+            jsr     SetPixel
+
+            lda.b   _yPos
+            cmp.b   _targetY
+            beq     Return
+
+            clc
+            adc.b   _iy
+            sta.b   _yPos
+
+            rep     #$20
+        a16()
+
+            lda.b   _d
+            bmi     +
+            beq     +
+                // _d > 0
+                clc
+                adc.b   _a
+                sta.b   _d
+
+                sep     #$20
+            a8()
+                // No need to preform a bounds check on _xPos
+                inc.b   _xPos
+
+                bra     SteepLoop
+
+            a16()
+            +
+                // _d <= 0
+                clc
+                adc.b   _b
+                sta.b   _d
+
+                bra     SteepLoop
+
+a8()
+Return:
     rts
 }
 
@@ -401,11 +629,8 @@ function NmiHandler {
 
 
 
-// Resources
-// =========
-
-namespace Resources {
-
+// Palette
+// =======
 
 if BITS_PER_PIXEL == 1 {
     Palette:
@@ -414,6 +639,9 @@ if BITS_PER_PIXEL == 1 {
 
         fill 512 - 2 * 2, 0x1c
     constant Palette.size = pc() - Palette
+
+    constant N_COLORS = 1
+
 
 } else if BITS_PER_PIXEL == 2 {
     Palette:
@@ -425,40 +653,141 @@ if BITS_PER_PIXEL == 1 {
         fill 512 - 2 * 4, 0x1c
     constant Palette.size = pc() - Palette
 
+    constant N_COLORS = 4
+
+
 } else if BITS_PER_PIXEL == 4 {
     // ::TODO better palette::
     Palette:
         dw  ToPalette( 0,  0,  0)
         dw  ToPalette(31, 31, 31)
         dw  ToPalette(31,  0,  0)
+        dw  ToPalette(15,  0,  0)
         dw  ToPalette( 0, 31,  0)
+        dw  ToPalette( 0, 15,  0)
         dw  ToPalette( 0,  0, 31)
+        dw  ToPalette( 0,  0, 15)
         dw  ToPalette(31, 31,  0)
+        dw  ToPalette(15, 15,  0)
         dw  ToPalette( 0, 31, 31)
+        dw  ToPalette( 0, 15, 15)
+        dw  ToPalette(31,  0, 31)
 
-        fill 512 - 2 * 7, 0x1c
+        fill 512 - 2 * 13, 0x1c
     constant Palette.size = pc() - Palette
+
+    constant N_COLORS = 13
+
 
 } else if BITS_PER_PIXEL == 8 {
     // ::TODO better palette::
     Palette:
         dw  ToPalette( 0,  0,  0)
         dw  ToPalette(31, 31, 31)
+        dw  ToPalette(20, 20, 20)
+        dw  ToPalette(10, 10, 10)
         dw  ToPalette(31,  0,  0)
+        dw  ToPalette(15,  0,  0)
         dw  ToPalette( 0, 31,  0)
+        dw  ToPalette( 0, 15,  0)
         dw  ToPalette( 0,  0, 31)
+        dw  ToPalette( 0,  0, 15)
         dw  ToPalette(31, 31,  0)
+        dw  ToPalette(15, 15,  0)
         dw  ToPalette( 0, 31, 31)
+        dw  ToPalette( 0, 15, 15)
+        dw  ToPalette(31,  0, 31)
+        dw  ToPalette(15,  0, 15)
+        dw  ToPalette(31, 15,  0)
+        dw  ToPalette(15, 31,  0)
+        dw  ToPalette( 0, 31, 15)
+        dw  ToPalette( 0, 15, 31)
+        dw  ToPalette(31,  0, 15)
+        dw  ToPalette(15,  0, 31)
+        dw  ToPalette(31, 23, 15)
+        dw  ToPalette(15, 31, 23)
+        dw  ToPalette(23, 15, 31)
 
-        fill 512 - 2 * 7, 0x1c
+        fill 512 - 2 * 25, 0x1c
     constant Palette.size = pc() - Palette
+
+    constant N_COLORS = 25
+
 
 } else {
     error "Invalid BITS_PER_PIXEL value"
 }
 
-
 assert(Palette.size == 256 * 2)
 
+
+
+// Line List
+// =========
+
+LineList:
+namespace LineList {
+    // Data format:  x1, y1, x2, y2, colour
+    constant x1     = LineList + 0
+    constant y1     = LineList + 1
+    constant x2     = LineList + 2
+    constant y2     = LineList + 3
+    constant colour = LineList + 4
+
+    constant elementSize = 5
+
+
+    // ::TODO draw an picture::
+
+    if N_COLORS > 1 {
+        assert(24 % (N_COLORS - 1) == 0)
+    }
+
+    variable _c = 1
+    variable _t = 0
+
+    inline addLine(evaluate x2, evaluate y2) {
+        db DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, {x2}, {y2}, _c
+
+        _t = _t + 1
+        if _t >= 5 {
+            _t = 0
+
+            _c = _c + 1
+            if _c >= N_COLORS {
+                _c = 1
+            }
+        }
+    }
+
+    variable _y = 0
+    while _y < DISPLAY_HEIGHT {
+        addLine(0, _y)
+
+        _y = _y + 8
+    }
+
+    variable _x = 0
+    while _x < DISPLAY_WIDTH {
+        addLine(_x, DISPLAY_HEIGHT - 1)
+
+        _x = _x + 8
+    }
+
+    variable _y = DISPLAY_HEIGHT - 1
+    while _y > 0 {
+        addLine(DISPLAY_WIDTH - 1, _y)
+
+        _y = _y - 8
+    }
+
+    variable _x = DISPLAY_WIDTH - 1
+    while _x > 0 {
+        addLine(_x, 0)
+
+        _x = _x - 8
+    }
 }
+constant LineList.size = pc() - LineList
+
 
