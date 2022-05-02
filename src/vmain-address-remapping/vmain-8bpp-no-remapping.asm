@@ -62,16 +62,14 @@ macro _DrawBit(define branch, evaluate offset) {
 //
 // INPUT: X = x-position (MUST BE < BUFFER_WIDTH_PX)
 //        Y = y-position (MUST BE < BUFFER_HEIGHT_PX)
-//        A = pixel colour
+//        SetPixel.pixelColour = pixel colour (zeropage byte, unmodified by this function)
+//
+// KEEP: pixelColour
 a8()
 i16()
 code()
 function SetPixel {
 constant _tmp   = zpTmp0
-constant _pixel = zpTmp1
-
-
-    sta.b   _pixel
 
 
     // Clear high byte of index registers
@@ -120,34 +118,34 @@ a8()
     // Y = tileBuffer index
     // X = bit shift index
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 0
     _DrawBit(beq, 0)
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 1
     _DrawBit(beq, 1)
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 2
     _DrawBit(beq, 16)
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 3
     _DrawBit(beq, 17)
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 4
     _DrawBit(beq, 32)
 
-    lda.b   _pixel
+    lda.b   pixelColour
     bit.b   #1 << 5
     _DrawBit(beq, 33)
 
-    bit.b   _pixel
+    bit.b   pixelColour
     _DrawBit(bvc, 48)
 
-    bit.b   _pixel
+    bit.b   pixelColour
     _DrawBit(bpl, 49)
 
     rts

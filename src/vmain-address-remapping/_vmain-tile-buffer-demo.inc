@@ -60,8 +60,11 @@ constant DISPLAY_HEIGHT = 224
 // (word)
 allocate(zpTmp0, zeropage, 2)
 allocate(zpTmp1, zeropage, 2)
-allocate(zpTmp2, zeropage, 2)
-allocate(zpTmp3, zeropage, 2)
+
+
+// `SetPixel` pixel colour.
+// (zeropage byte)
+allocate(SetPixel.pixelColour, zeropage, 1)
 
 
 
@@ -330,9 +333,7 @@ constant _yPos      = zpTmpB1
 constant _targetX   = zpTmpB2
 constant _targetY   = zpTmpB3
 
-constant _colour    = zpTmpB4
-
-constant _iy        = zpTmpB5
+constant _iy        = zpTmpB4
 
 
 // Word variables
@@ -365,7 +366,7 @@ constant _d         = zpWord4
     sta.b   _targetY
 
     lda.l   LineList.colour,x
-    sta.b   _colour
+    sta.b   SetPixel.pixelColour
 
 
 
@@ -460,7 +461,6 @@ constant _d         = zpWord4
 
             ldx.b   _xPos
             ldy.b   _yPos
-            lda.b   _colour
             jsr     SetPixel
 
             lda.b   _xPos
@@ -530,7 +530,6 @@ constant _d         = zpWord4
         a8()
             ldx.b   _xPos
             ldy.b   _yPos
-            lda.b   _colour
             jsr     SetPixel
 
             lda.b   _yPos

@@ -23,17 +23,15 @@ include "_vmain-tile-buffer-demo.inc"
 //
 // INPUT: X = x-position (MUST BE < BUFFER_WIDTH_PX)
 //        Y = y-position (MUST BE < BUFFER_HEIGHT_PX)
-//        A = pixel colour
+//        SetPixel.pixelColour = pixel colour (zeropage byte, unmodified by this function)
+//
+// KEEP: pixelColour
 a8()
 i16()
 code()
 function SetPixel {
 constant _tmp         = zpTmp0
-constant _pixel       = zpTmp1
-constant _tableIndex1 = zpTmp2
-
-
-    sta.b   _pixel
+constant _tableIndex1 = zpTmp1
 
 
     // Clear high byte of index registers
@@ -62,8 +60,8 @@ i16()
     tay
 
 
-    // tableIndex0 = (((X & 7) << 2) | (_pixel & 3)) * 2
-    // tableIndex1 = (((X & 7) << 2) | ((_pixel >> 2) & 3)) * 2
+    // tableIndex0 = (((X & 7) << 2) | (pixelColour & 3)) * 2
+    // tableIndex1 = (((X & 7) << 2) | ((pixelColour >> 2) & 3)) * 2
     sep     #$20
 a8()
     // Set high byte of A to 0
@@ -75,14 +73,14 @@ a8()
     asl
     sta.b   _tmp
 
-    lda.b   _pixel
+    lda.b   pixelColour
     and.b   #3
     ora.b   _tmp
     asl
     tax
 
 
-    lda.b   _pixel
+    lda.b   pixelColour
     lsr
     lsr
     and.b   #3
