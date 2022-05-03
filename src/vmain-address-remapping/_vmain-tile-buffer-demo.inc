@@ -29,24 +29,33 @@ include "../reset_handler.inc"
 include "../dma_forceblank.inc"
 
 
-// VRAM Map
-constant VRAM_BG1_TILES_WADDR = 0x0000
-constant VRAM_BG1_MAP_WADDR   = 0x7c00  // 32x32
 
+if !{defined MODE7} {
+    // VRAM Map
+    constant VRAM_BG1_TILES_WADDR = 0x0000
+    constant VRAM_BG1_MAP_WADDR   = 0x7c00  // 32x32
 
+    // The size of a single tilemap
+    constant TILEMAP_WIDTH = 32
+    constant TILEMAP_HEIGHT = 32
 
-constant BUFFER_WIDTH_PX = 256
-constant BUFFER_HEIGHT_PX = 224
+    constant BUFFER_WIDTH_PX = 256
+    constant BUFFER_HEIGHT_PX = 224
+
+} else {
+    // Mode 7
+
+    constant BITS_PER_PIXEL = 8
+    constant TILE_SIZE_IN_BYTES = BITS_PER_PIXEL * 8
+
+    constant M7_TILEMAP_WIDTH  = 128
+    constant M7_TILEMAP_HEIGHT = 128
+
+    constant BUFFER_WIDTH_PX = 128
+    constant BUFFER_HEIGHT_PX = 112
+}
 
 constant BUFFER_SIZE = BUFFER_WIDTH_PX * BUFFER_HEIGHT_PX * BITS_PER_PIXEL / 8
-
-assert(BUFFER_WIDTH_PX % 8 == 0)
-assert(BUFFER_HEIGHT_PX % 8 == 0)
-
-
-// The size of a single tilemap
-constant TILEMAP_WIDTH = 32
-constant TILEMAP_HEIGHT = 32
 
 
 
@@ -114,24 +123,58 @@ i16()
 
     // Set PPU registers
 
-    // Set BGMODE
-    if BITS_PER_PIXEL == 1 || BITS_PER_PIXEL == 2 {
-        lda.b   #BGMODE.mode0
-    } else if BITS_PER_PIXEL == 4 {
-        lda.b   #BGMODE.mode1
-    } else if BITS_PER_PIXEL == 8 {
-        lda.b   #BGMODE.mode3
+    if !{defined MODE7} {
+        // Set BGMODE
+        if BITS_PER_PIXEL == 1 || BITS_PER_PIXEL == 2 {
+            lda.b   #BGMODE.mode0
+        } else if BITS_PER_PIXEL == 4 {
+            lda.b   #BGMODE.mode1
+        } else if BITS_PER_PIXEL == 8 {
+            lda.b   #BGMODE.mode3
+        } else {
+            error "Unknown BITS_PER_PIXEL"
+        }
+        sta.w   BGMODE
+
+
+        lda.b   #(VRAM_BG1_MAP_WADDR / BGXSC.base.walign) << BGXSC.base.shift | BGXSC.map.s32x32
+        sta.w   BG1SC
+
+        lda.b   #(VRAM_BG1_TILES_WADDR / BG12NBA.walign) << BG12NBA.bg1.shift
+        sta.w   BG12NBA
+
     } else {
-        error "Unknown BITS_PER_PIXEL"
+        // Mode 7
+
+        lda.b   #7
+        sta.w   BGMODE
+
+        stz.w   M7SEL
+
+
+        // Initialize Mode 7 matrix
+        lda.b   #MODE7_MATRIX_A
+        sta.w   M7A
+        lda.b   #MODE7_MATRIX_A >> 8
+        sta.w   M7A
+        lda.b   #MODE7_MATRIX_B
+        sta.w   M7B
+        lda.b   #MODE7_MATRIX_B >> 8
+        sta.w   M7B
+        lda.b   #MODE7_MATRIX_C
+        sta.w   M7C
+        lda.b   #MODE7_MATRIX_C >> 8
+        sta.w   M7C
+        lda.b   #MODE7_MATRIX_D
+        sta.w   M7D
+        lda.b   #MODE7_MATRIX_D >> 8
+        sta.w   M7D
+
+        stz.w   M7X
+        stz.w   M7X
+        stz.w   M7Y
+        stz.w   M7Y
     }
-    sta.w   BGMODE
-
-
-    lda.b   #(VRAM_BG1_MAP_WADDR / BGXSC.base.walign) << BGXSC.base.shift | BGXSC.map.s32x32
-    sta.w   BG1SC
-
-    lda.b   #(VRAM_BG1_TILES_WADDR / BG12NBA.walign) << BG12NBA.bg1.shift
-    sta.w   BG12NBA
 
     lda.b   #TM.bg1
     sta.w   TM
@@ -176,6 +219,7 @@ i16()
 }
 
 
+if !{defined MODE7} {
 
 // Generate the BG1 tilemap in VRAM.
 //
@@ -218,6 +262,8 @@ assert(BUFFER_TILE_HEIGHT < TILEMAP_HEIGHT)
         bne     -
 
     rts
+}
+
 }
 
 
