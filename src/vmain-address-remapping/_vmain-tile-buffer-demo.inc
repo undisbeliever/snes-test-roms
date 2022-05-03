@@ -49,11 +49,6 @@ constant TILEMAP_WIDTH = 32
 constant TILEMAP_HEIGHT = 32
 
 
-// The size of the display
-constant DISPLAY_WIDTH = 256
-constant DISPLAY_HEIGHT = 224
-
-
 
 // Temporary zero-page word variables
 // Used by the SetPixel routine
@@ -298,7 +293,7 @@ function SetPixelWithBoundsChecking {
     // Clip index registers to 8 bits
     sep     #$10
 i8()
-    cpy.b   #DISPLAY_HEIGHT
+    cpy.b   #BUFFER_HEIGHT_PX
     rep     #$10
 a16()
     bcs     +
@@ -353,7 +348,7 @@ constant _d         = zpWord4
     sta.b   _xPos
 
     lda.l   LineList.y1,x
-    cmp.b   #DISPLAY_HEIGHT
+    cmp.b   #BUFFER_HEIGHT_PX
     bcs     InvalidInput
     sta.b   _yPos
 
@@ -361,7 +356,7 @@ constant _d         = zpWord4
     sta.b   _targetX
 
     lda.l   LineList.y2,x
-    cmp.b   #DISPLAY_HEIGHT
+    cmp.b   #BUFFER_HEIGHT_PX
     bcs     InvalidInput
     sta.b   _targetY
 
@@ -487,7 +482,7 @@ constant _d         = zpWord4
                 clc
                 adc.b   _iy
                 sta.b   _yPos
-                cmp.b   #DISPLAY_HEIGHT
+                cmp.b   #BUFFER_HEIGHT_PX
                 bcs     Return
 
                 bra     ShallowLoop
@@ -746,7 +741,7 @@ namespace LineList {
     variable _t = 0
 
     inline addLine(evaluate x2, evaluate y2) {
-        db DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, {x2}, {y2}, _c
+        db BUFFER_WIDTH_PX / 2, BUFFER_HEIGHT_PX / 2, {x2}, {y2}, _c
 
         _t = _t + 1
         if _t >= 5 {
@@ -760,27 +755,27 @@ namespace LineList {
     }
 
     variable _y = 0
-    while _y < DISPLAY_HEIGHT {
+    while _y < BUFFER_HEIGHT_PX {
         addLine(0, _y)
 
         _y = _y + 8
     }
 
     variable _x = 0
-    while _x < DISPLAY_WIDTH {
-        addLine(_x, DISPLAY_HEIGHT - 1)
+    while _x < BUFFER_WIDTH_PX {
+        addLine(_x, BUFFER_HEIGHT_PX - 1)
 
         _x = _x + 8
     }
 
-    variable _y = DISPLAY_HEIGHT - 1
+    variable _y = BUFFER_HEIGHT_PX - 1
     while _y > 0 {
-        addLine(DISPLAY_WIDTH - 1, _y)
+        addLine(BUFFER_WIDTH_PX - 1, _y)
 
         _y = _y - 8
     }
 
-    variable _x = DISPLAY_WIDTH - 1
+    variable _x = BUFFER_WIDTH_PX - 1
     while _x > 0 {
         addLine(_x, 0)
 
