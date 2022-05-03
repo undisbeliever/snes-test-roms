@@ -42,8 +42,8 @@ i8()
 a16()
 i16()
 
-    // bufferIndex (Y) = (yPos / 8 * TILEMAP_WIDTH * TILE_SIZE_IN_BYTES) + (xPos / 8 * TILE_SIZE_IN_BYTES) + (yPos % 8)
-    //             ... = ((yPos & 0xf8) << 5) + (xPos & 0xf8) + (yPos & 7)
+    // bufferIndex (Y) = (yPos / 8 * TILEMAP_WIDTH * TILE_SIZE_IN_BYTES) | (xPos / 8 * TILE_SIZE_IN_BYTES) | (yPos % 8)
+    //             ... = ((yPos & 0xf8) << 5) | (xPos & 0xf8) | (yPos & 7)
 
     tya
     assert(TILEMAP_WIDTH * TILE_SIZE_IN_BYTES / 8 == 0x100 >> 3)
@@ -57,14 +57,12 @@ i16()
     assert(TILE_SIZE_IN_BYTES / 8 == 1)
     txa
     and.w   #0xf8
-    clc
-    adc.b   _tmp
+    ora.b   _tmp
     sta.b   _tmp
 
     tya
     and.w   #7
-    clc
-    adc.b   _tmp
+    ora.b   _tmp
     tay
 
 

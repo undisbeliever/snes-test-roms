@@ -77,8 +77,8 @@ i8()
 a16()
 i16()
 
-    // bufferIndex (Y) = (yPos * BUFFER_WIDTH_PX / 8 * BITS_PER_PIXEL) + (xPos / 8 * BITS_PER_PIXEL)
-    //             ... = (yPos << 8) + (xPos & 0xf8)
+    // bufferIndex (Y) = (yPos * BUFFER_WIDTH_PX / 8 * BITS_PER_PIXEL) | (xPos / 8 * BITS_PER_PIXEL)
+    //             ... = (yPos << 8) | (xPos & 0xf8)
 
     assert(BUFFER_WIDTH_PX / 8 * BITS_PER_PIXEL == 0x100)
     tya
@@ -88,8 +88,7 @@ i16()
     assert(8 / BITS_PER_PIXEL == 1)
     txa
     and.w   #0xf8
-    clc
-    adc.b   _tmp
+    ora.b   _tmp
 
     tay
 

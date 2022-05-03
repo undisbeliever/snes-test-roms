@@ -84,8 +84,8 @@ i8()
 a16()
 i16()
 
-    // bufferIndex (Y) = (yPos * BUFFER_WIDTH_PX / 8) + (xPos / 8)
-    //             ... = (yPos << 5) + (xPos >> 3)
+    // bufferIndex (Y) = (yPos * BUFFER_WIDTH_PX / 8) | (xPos / 8)
+    //             ... = (yPos << 5) | (xPos >> 3)
 
     assert(BUFFER_WIDTH_PX / 8 == 0x100 >> 3)
     tya
@@ -100,8 +100,7 @@ i16()
     lsr
     lsr
     lsr
-    clc
-    adc.b   _tmp
+    ora.b   _tmp
 
     tay
 
