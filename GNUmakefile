@@ -63,11 +63,14 @@ roms: $(BINARIES)
 
 
 ifeq ($(VANILLA_BASS), n)
-bin/%.sfc: src/%.asm
+bin/%.sfc: src/%.asm tools/write-sfc-checksum.py
 	$(bass) -strict -o $@ -sym $(@:.sfc=.sym) $<
+	python3 tools/write-sfc-checksum.py --lorom $@
+
 else
 bin/%.sfc: src/%.asm
 	$(bass) -strict -o $@ $<
+	python3 tools/write-sfc-checksum.py --lorom $@
 endif
 
 
