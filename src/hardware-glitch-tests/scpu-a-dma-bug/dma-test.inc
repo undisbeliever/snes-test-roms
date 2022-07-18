@@ -97,9 +97,17 @@ code()
 CopHandler:
 EmptyHandler:
 function BreakHandler {
+    // This ISR may be invoked in emulation mode, switch to native mode
+    sei
+    clc
+    xce
+
     sep     #$30
 a8()
 i8()
+    phk
+    plb
+
     stz.w   NMITIMEN
     stz.w   HDMAEN
 
