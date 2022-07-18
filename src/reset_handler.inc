@@ -210,6 +210,10 @@ i8()
 	sta.l   NMITIMEN
     sta.l   HDMAEN
 
+    // Reset IO pins
+    lda.b   #0xff
+    sta.l   WRIO
+
 
     // Force Screen Blank
     lda.b   #INIDISP.force
@@ -257,6 +261,15 @@ i8()
         stz.b   0x23,x
         dex
         bpl     -
+
+
+    lda.b   #CGWSEL.prevent.always
+    sta.b   CGWSEL
+
+    // Set Fixed color data to black
+    lda.b   #COLDATA.plane.all | 0
+    sta.b   COLDATA
+
 
 
     // reset all of the DMA registers
