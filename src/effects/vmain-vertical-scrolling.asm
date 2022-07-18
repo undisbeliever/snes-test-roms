@@ -49,16 +49,6 @@ constant TILEMAP_WORD_SIZE = TILEMAP_WIDTH * TILEMAP_HEIGHT
 
 
 
-// Execute V-Blank Routine flag
-//
-// The VBlank routine will be executed if this value is non-zero.
-//
-// (byte flag)
-allocate(vBlankFlag, shadow, 1)
-
-
-
-
 
 // If this value is zero, the next row will be transferred to VRAM on the next VBlank interrupt.
 // (byte flag)
@@ -261,6 +251,8 @@ macro VBlank() {
     sta.w   BG1VOFS
 }
 
+include "../vblank_interrupts.inc"
+
 
 
 au()
@@ -321,11 +313,7 @@ i16()
     Dma.ForceBlank.ToCgram(Resources.Palette)
 
 
-    // Enable VBlank interrupts
-    lda.b   #NMITIMEN.vBlank
-    sta.w   NMITIMEN
-
-
+    EnableVblankInterrupts()
 
     jsr     WaitFrame
 
@@ -419,102 +407,6 @@ a8()
 
 -
     bra     -
-}
-
-
-
-// NMI ISR
-au()
-iu()
-code()
-function NmiHandler {
-    // Jump to FastROM bank
-    jml     FastRomNmiHandler
-FastRomNmiHandler:
-
-    // Save CPU state
-    rep     #$30
-a16()
-i16()
-    pha
-    phx
-    phy
-    phd
-    phb
-
-
-    phk
-    plb
-// DB = 0x80
-
-    lda.w   #0
-    tcd
-// DP = 0
-
-
-    sep     #$20
-a8()
-
-    // Only execute the VBlank routine if `vBlankFlag` is non-zero.
-    // (prevents corruption during force-blank setup or a lag frame)
-    lda.w   vBlankFlag
-    bne     +
-        jmp     EndVBlankRoutine
-    +
-
-        VBlank()
-
-
-        stz.w   vBlankFlag
-
-
-EndVBlankRoutine:
-
-
-    rep     #$30
-a16()
-i16()
-
-    // Restore CPU state
-    assert16a()
-    assert16i()
-    plb
-    pld
-    ply
-    plx
-    pla
-
-    rti
-}
-
-
-
-// Wait until the start of a new display frame
-// (or the end of the VBlank routine (NmiHandler)).
-//
-// REQUIRES: NMI enabled, DB access shadow
-au()
-iu()
-code()
-function WaitFrame {
-    php
-    sep     #$20
-a8()
-
-    lda.b   #1
-    sta.w   vBlankFlag
-
-
-    // Loop until `vBlankFlag` is clear
-    Loop:
-        wai
-
-        lda.w   vBlankFlag
-        bne     Loop
-
-    plp
-
-    rts
 }
 
 

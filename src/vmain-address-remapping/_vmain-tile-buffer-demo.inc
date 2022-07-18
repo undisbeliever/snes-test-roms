@@ -101,6 +101,15 @@ constant tileBuffer.size = BUFFER_SIZE
 
 
 
+// VBlank routine
+macro VBlank() {
+    // Empty - no VBlank routine
+}
+
+include "../vblank_interrupts.inc"
+
+
+
 au()
 iu()
 code()
@@ -202,13 +211,10 @@ i16()
     jsr     TransferTileBufferToVram
 
 
+    EnableVblankInterrupts()
+    jsr     WaitFrame
 
-    // Wait until VBlank
-    lda.b   #NMITIMEN.vBlank
-    sta.w   NMITIMEN
-    wai
-
-    // Enable screen, full brightness
+    // Enable screen, full brightness (in VBlank)
     lda.b   #15
     sta.w   INIDISP
 
@@ -651,19 +657,6 @@ a8()
 -
     wai
     bra     -
-}
-
-
-
-
-// NMI ISR
-//
-// Does nothing
-au()
-iu()
-code()
-function NmiHandler {
-    rti
 }
 
 
