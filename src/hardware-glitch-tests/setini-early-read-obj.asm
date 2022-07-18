@@ -32,25 +32,8 @@ createCodeBlock(code,       0x808000, 0x80ffaf)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
-
-
-// Break ISR
-// Black screen of death on error
-au()
-iu()
-code()
-CopHandler:
-IrqHandler:
-NmiHandler:
-EmptyHandler:
-BreakHandler:
-function BSOD {
-    jsr     ResetRegisters
-
--
-    bra     -
-}
 
 
 
@@ -58,6 +41,12 @@ function BSOD {
 constant VRAM_OBJ_TILES_WADDR = 0x6000
 constant VRAM_BG1_TILES_WADDR = 0x1000
 constant VRAM_BG1_MAP_WADDR   = 0x1400
+
+
+
+// This demo does not use VBlank Interrupts.
+constant NmiHandler = BreakHandler
+
 
 
 // Setup and initialize the PPU

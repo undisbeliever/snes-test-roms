@@ -38,6 +38,7 @@ createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
 
 
@@ -86,30 +87,6 @@ allocate(hdmaPatternBuffer_B, shadow, 2 * HDMA_PATTERN_LINES)
 //
 // (byte flag)
 allocate(activeHdmaPatternBuffer, shadow, 1)
-
-
-
-// Break ISR
-// Stop execution on error
-au()
-iu()
-code()
-CopHandler:
-IrqHandler:
-EmptyHandler:
-function BreakHandler {
-    sep     #$20
-a8()
-
-    // Disable interrupts
-    lda.b   #0
-    sta.l   NMITIMEN
-
-
-    // Spinloop
-    SpinLoop:
-        bra     SpinLoop
-}
 
 
 

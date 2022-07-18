@@ -15,41 +15,8 @@ createCodeBlock(code,       0x808000, 0x80ffaf)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../../reset_handler.inc"
+include "../../break_handler.inc"
 include "../../dma_forceblank.inc"
-
-
-// Break ISR
-// Red screen of death on error
-au()
-iu()
-code()
-CopHandler:
-IrqHandler:
-NmiHandler:
-EmptyHandler:
-BreakHandler:
-function RSOD {
-    rep     #$30
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
-
-    jsr     ResetRegisters
-
-    stz.w   CGADD
-    lda.b   #0x1f
-    sta.w   CGDATA
-    stz.w   CGDATA
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
--
-    bra     -
-}
 
 
 
@@ -57,6 +24,12 @@ a8()
 constant VRAM_OBJ_TILES_WADDR = 0x6000
 constant VRAM_BG1_TILES_WADDR = 0x1000
 constant VRAM_BG1_MAP_WADDR   = 0x1400
+
+
+
+// This test does not use NMI Interrupts.
+constant NmiHandler = BreakHandler
+
 
 
 // Setup and initialize the PPU

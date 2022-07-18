@@ -17,6 +17,9 @@ define REGION = Japan
 define ROM_NAME = "ENABLE DISPLAY MID FRAME"
 define VERSION = 2
 
+define USES_IRQ_INTERRUPTS
+
+
 architecture wdc65816-strict
 
 include "../common.inc"
@@ -27,6 +30,7 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../nmi_handler.inc"
 include "../dma_forceblank.inc"
 
@@ -59,36 +63,6 @@ constant IRQ_Y_MAX = 261
 
 constant IRQ_X_START = 15
 constant IRQ_Y_START = 89
-
-
-// Break ISR
-// Red screen of death on error
-au()
-iu()
-code()
-CopHandler:
-EmptyHandler:
-BreakHandler:
-    rep     #$30
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
-
-    jsr     ResetRegisters
-
-    stz.w   CGADD
-    lda.b   #0x1f
-    sta.w   CGDATA
-    stz.w   CGDATA
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
--
-    bra     -
 
 
 

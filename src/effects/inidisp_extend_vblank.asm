@@ -30,6 +30,8 @@ define REGION = Japan
 define ROM_NAME = "INIDISP EXTEND VBLANK"
 define VERSION = 1
 
+define USES_IRQ_INTERRUPTS
+
 
 architecture wdc65816-strict
 
@@ -57,6 +59,7 @@ createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
 
 
@@ -126,6 +129,11 @@ allocate(brightness, shadow, 1)
 //
 // (uint8 TM shadow variable)
 allocate(tmShadow, shadow, 1)
+
+
+
+// This demo does not use NMI Interrupts.
+constant NmiHandler = BreakHandler
 
 
 
@@ -748,34 +756,6 @@ i16()
         jsr     Process
 
         bra     MainLoop
-}
-
-
-
-// Break ISR
-// Stop execution on error
-au()
-iu()
-code()
-NmiHandler:
-CopHandler:
-EmptyHandler:
-function BreakHandler {
-    // Clear m, x, decimal flags
-    rep     #$38
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
-
-    // Disable Interrupts
-    stz.w   NMITIMEN
-
--
-    wai
-    bra     -
 }
 
 

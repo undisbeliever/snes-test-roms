@@ -33,6 +33,7 @@ createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
 
 
@@ -366,47 +367,6 @@ i16()
         jsr     WaitFrame
 
         jmp     MainLoop
-}
-
-
-
-
-
-// Interrupts
-// ==========
-
-
-
-// Break ISR
-//
-// Red screen of death on error
-au()
-iu()
-code()
-CopHandler:
-IrqHandler:
-EmptyHandler:
-function BreakHandler {
-    rep     #$30
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
-
-    jsr     ResetRegisters
-
-    stz.w   CGADD
-    lda.b   #0x1f
-    sta.w   CGDATA
-    stz.w   CGDATA
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
--
-    bra     -
 }
 
 

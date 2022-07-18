@@ -28,6 +28,7 @@ createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
 
 
@@ -35,37 +36,8 @@ constant VRAM_BG1_TILES_WADDR = 0x1000
 constant VRAM_BG1_MAP_WADDR   = 0x0000
 
 
-
-// Break ISR
-// Black screen of death on error
-au()
-iu()
-code()
-NmiHandler:
-CopHandler:
-EmptyHandler:
-IrqHandler:
-function BreakHandler {
-    rep     #$30
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
-
-    jsr     ResetRegisters
-
-    stz.w   CGADD
-    stz.w   CGDATA
-    stz.w   CGDATA
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
--
-    bra     -
-}
+// This demo does not use VBlank Interrupts.
+constant NmiHandler = BreakHandler
 
 
 

@@ -12,6 +12,9 @@ define REGION = Japan
 define ROM_NAME = "FORGOT TO FORCE BLANK"
 define VERSION = 0
 
+define USES_IRQ_INTERRUPTS
+
+
 architecture wdc65816-strict
 
 include "../common.inc"
@@ -22,6 +25,7 @@ createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
+include "../break_handler.inc"
 include "../dma_forceblank.inc"
 
 // BG2-4 uses WADDR 0
@@ -33,36 +37,10 @@ constant VRAM_BG1_MAP_WADDR   = 0x1400
 allocate(loopCounter, shadow, 2)
 
 
-// Break ISR
-// Red screen of death on error
-au()
-iu()
-code()
-NmiHandler:
-CopHandler:
-EmptyHandler:
-function BreakHandler {
-    rep     #$30
-    sep     #$20
-i16()
-a8()
-    assert(pc() >> 16 == 0x80)
-    phk
-    plb
 
-    jsr     ResetRegisters
+// This demo does not use VBlank Interrupts.
+constant NmiHandler = BreakHandler
 
-    stz.w   CGADD
-    lda.b   #0x1f
-    sta.w   CGDATA
-    stz.w   CGDATA
-
-    lda.b   #0x0f
-    sta.w   INIDISP
-
--
-    bra     -
-}
 
 
 // IRQ ISR
