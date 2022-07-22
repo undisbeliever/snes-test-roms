@@ -26,6 +26,16 @@ allocate(frameCounter, shadow, 4)
 
 
 
+if {defined VBLANK_READS_JOYPAD} {
+    // The current state of the joypad
+    allocate(joypadCurrent, shadow, 2)
+
+    // The newly pressed buttons on this frame
+    allocate(joypadPressed, shadow, 2)
+}
+
+
+
 // Enable VBlank interrupts.
 //
 // NOTE: This macro disabled IRQ interrupts.
@@ -41,7 +51,7 @@ macro EnableVblankInterrupts() {
     // Clear NMI flag
     lda.w   RDNMI
 
-    lda.b   #NMITIMEN.vBlank
+    lda.b   #NMITIMEN.vBlank | NMITIMEN.autoJoy
     sta.w   NMITIMEN
 }
 
@@ -133,6 +143,41 @@ a8()
         // (signal to the main-loop that the VBlank routine has been executed)
         assert8a()
         stz.w   __vBlankFlag
+
+
+        if {defined VBLANK_READS_JOYPAD} {
+            // Wait until Auto-Joy is ready
+            lda.b   #HVBJOY.autoJoy
+            -
+                assert8a()
+                bit.w	HVBJOY
+                bne		-
+
+            rep     #$30
+        a16()
+        i16()
+
+            // Test joypad type bits and ignore anything that is not a standard controller
+            lda.w   JOY1
+            bit.w   #JOY.type.mask
+            beq     +
+                lda.w   #0
+            +
+
+            // Save current and retrieve old `joypadCurrent`
+            tay
+            lda.w   joypadCurrent
+            sty.w   joypadCurrent
+
+            // Calculate newly pressed buttons
+            // A = old joypadCurrent
+            eor.w   #0xffff
+            and.w   joypadCurrent
+            sta.w   joypadPressed
+        }
+
+au()
+iu()
 EndVBlankRoutine:
 
     rep     #$30
