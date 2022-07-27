@@ -223,6 +223,8 @@ HdmaTablesTable:
     dw  TriangleR_0
     dw  TriangleR_1
     dw  TriangleR_2
+    dw  TriangleR_3
+    dw  TriangleR_4
     dw  Octagon
     dw  MultipleShapes
     dw  Circle
@@ -434,18 +436,6 @@ Trapezium_2:
 
 
 
-// `db` the integer portion of a 8.8 fixed point integer, clamping it to 0-255.
-macro __db_fp_clamped_int(evaluate i) {
-    if {i} < 0 {
-        db  0
-    } else if {i} > 0xff * FIXED_POINT_SCALE {
-        db  0xff
-    } else {
-        db {i} / FIXED_POINT_SCALE
-    }
-}
-
-
 // Generate a HDMA repeat mode block for two angled window positions.
 //
 // NOTE: This inline macro will only create a single HDMA table entry.
@@ -466,8 +456,23 @@ inline __DrawAngledLines(evaluate height, evaluate dx_left, evaluate dx_right) {
             left = left + {dx_left}
             right = right + {dx_right}
 
-            __db_fp_clamped_int(left)
-            __db_fp_clamped_int(right)
+            if right < 0 || left >= DISPLAY_WIDTH * FIXED_POINT_SCALE {
+                // Window is off-screen
+                db  255, 0
+            } else {
+                // Window is on-screen, clamp window positions to an 8 bit value
+                variable l = left / FIXED_POINT_SCALE
+                if l < 0 {
+                    l = 0
+                }
+
+                variable r = right / FIXED_POINT_SCALE
+                if r >= 255 {
+                    r = 255
+                }
+
+                db  l, r
+            }
 
             i = i + 1
         }
@@ -548,6 +553,16 @@ TriangleR_1:
 // Aspect corrected equilateral triangle
 TriangleR_2:
     TrianglePointingRight_HdmaTable(79, 55,    197, 92,   110, 189)
+
+
+// Triangle with the top horizontally off-screen
+TriangleR_3:
+    TrianglePointingRight_HdmaTable(-80, 20,   150, 150,   80, 200)
+
+
+// Triangle with the top horizontally off-screen
+TriangleR_4:
+    TrianglePointingRight_HdmaTable(120, 20,   320, 100,   300, 200)
 
 
 
