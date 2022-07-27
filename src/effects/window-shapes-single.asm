@@ -448,29 +448,21 @@ macro __db_fp_clamped_int(evaluate i) {
 
 // Generate a HDMA repeat mode block for two angled window positions.
 //
+// NOTE: This inline macro will only create a single HDMA table entry.
+//       Height MUST be <= 127.
+//
 // NOTE: This inline macro will modify the `left` and `right` variables.
 //
-// PARAM: height: The number of scanlines to draw (integer)
+// PARAM: height: The number of scanlines to draw (integer <= 127)
 // PARAM: dx_left/dx_right: The delta-x for each scanline (.8 signed fixed point)
 inline __DrawAngledLines(evaluate height, evaluate dx_left, evaluate dx_right) {
     if {height} > 0 {
-        assert({height} < 127 * 2)
-
         // Start a HDMA entry in repeat mode
-        if {height} > 127 {
-            db  0x80 | 127
-        } else {
-            db  0x80 | {height}
-        }
+        assert({height} <= 127)
+        db  0x80 | {height}
 
         variable i = 0
         while i < {height} {
-            if i == 127 {
-                // After 127 scanlines the first HDMA table is completed.
-                // Start a new HDMA entry for the remaining scanlines.
-                db  0x80 | ({height} - 127)
-            }
-
             left = left + {dx_left}
             right = right + {dx_right}
 
@@ -494,9 +486,9 @@ macro TrianglePointingRight_HdmaTable(evaluate top_x, evaluate top_y, evaluate c
     evaluate h1 = {center_y} - {top_y}
     evaluate h2 = {bottom_y} - {center_y}
 
-    assert({top_y} >= 0)
-    assert({h1} >= 0)
-    assert({h2} >= 0)
+    assert({top_y} >= 0 && {top_y} <= 127 * 2)
+    assert({h1} >= 0 && {h1} <= 127 * 2)
+    assert({h2} >= 0 && {h2} <= 127 * 2)
     assert({bottom_y} < DISPLAY_HEIGHT)
     assert({center_x} >= {top_x})
     assert({center_x} >= {bottom_x})
@@ -522,8 +514,19 @@ macro TrianglePointingRight_HdmaTable(evaluate top_x, evaluate top_y, evaluate c
     variable left  = {top_x} * FIXED_POINT_SCALE
     variable right = left
 
-    __DrawAngledLines({h1}, {dx_left}, {dx_right1})
-    __DrawAngledLines({h2}, {dx_left}, {dx_right2})
+    if {h1} > 127 {
+        __DrawAngledLines(127,        {dx_left}, {dx_right1})
+        __DrawAngledLines({h1} - 127, {dx_left}, {dx_right1})
+    } else {
+        __DrawAngledLines({h1},       {dx_left}, {dx_right1})
+    }
+
+    if {h2} > 127 {
+        __DrawAngledLines(127,        {dx_left}, {dx_right2})
+        __DrawAngledLines({h2} - 127, {dx_left}, {dx_right2})
+    } else {
+        __DrawAngledLines({h2},       {dx_left}, {dx_right2})
+    }
 
 
     // Disable window for 1 scanline
