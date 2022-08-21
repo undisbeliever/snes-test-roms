@@ -27,7 +27,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -53,38 +53,38 @@ constant TILEMAP_WORD_SIZE = TILEMAP_WIDTH * TILEMAP_HEIGHT
 
 // If this value is zero, the next row will be transferred to VRAM on the next VBlank interrupt.
 // (byte flag)
-allocate(transferTilemapRowOnZero, shadow, 1)
+allocate(transferTilemapRowOnZero, lowram, 1)
 
 // The VRAM word address to transfer the map data.
 //
 // (VRAM word address)
-allocate(tilemapRowVramWaddr, shadow, 2)
+allocate(tilemapRowVramWaddr, lowram, 2)
 
 // Long address of the tilemap row to transfer to VRAM.
 //
 // (long address into `Map.Data`)
-allocate(tilemapRowFarAddr, shadow, 3)
+allocate(tilemapRowFarAddr, lowram, 3)
 
 
 
 // Shadow variable of the BG1 Horizontal Offset register
 // (uint16)
-allocate(bg1_hofs, shadow, 2)
+allocate(bg1_hofs, lowram, 2)
 
 // Shadow variable of the BG1 Vertical Offset register
 // (uint16)
-allocate(bg1_vofs, shadow, 2)
+allocate(bg1_vofs, lowram, 2)
 
 
 
 // Camera Y position.
 //
 // (uint16)
-allocate(cameraYpos, shadow, 2)
+allocate(cameraYpos, lowram, 2)
 
 // Used to determine if the next row is to be uploaded to VRAM
 // (byte)
-allocate(maskedCameraYpos, shadow, 1)
+allocate(maskedCameraYpos, lowram, 1)
 
 
 
@@ -124,7 +124,7 @@ function InitTilemapRowTransfers {
 
 // Queue a transfer of the next tilemap row to VRAM on the next VBlank.
 //
-// REQUIRES: 8 bit A, 16 bit Index, DB access shadow RAM, DP = 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access low-RAM, DP = 0
 a8()
 i16()
 code()

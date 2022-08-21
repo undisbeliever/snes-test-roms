@@ -19,7 +19,7 @@ include "../common.inc"
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
 createRamBlock(zeropage,    0x7e0000, 0x7e00ff)
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
@@ -149,8 +149,8 @@ au()
 iu()
 code()
 function Main {
-allocate(_channelIndex, shadow, 2)
-allocate(_hdmaen,       shadow, 1)
+allocate(_channelIndex, lowram, 2)
+allocate(_hdmaen,       lowram, 1)
 
     sep     #$30
 a8()

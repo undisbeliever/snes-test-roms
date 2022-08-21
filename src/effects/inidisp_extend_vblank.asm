@@ -54,7 +54,7 @@ createCodeBlock(rom13,      0x8d8000, 0x8dffff)
 createCodeBlock(rom14,      0x8e8000, 0x8effff)
 createCodeBlock(rom15,      0x8f8000, 0x8fffff)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
@@ -103,7 +103,7 @@ constant IRQ_X_POS = 240
 //
 // Will contain `jml 0x80????`, where `????` is the address of the next IRQ
 // handler to execute.
-allocate(IrqHandler, shadow, 4)
+allocate(IrqHandler, lowram, 4)
 
 
 // Address of the next IRQ ISR.
@@ -116,19 +116,19 @@ constant irqHandlerAddr = IrqHandler + 1
 // Set by `WaitFrame`, cleared by `IRQ_VBlank`.
 //
 // (byte flag)
-allocate(vBlankFlag, shadow, 1)
+allocate(vBlankFlag, lowram, 1)
 
 
 // The brightness of the display for the current frame.
 //
 // (uint8 INIDISP shadow variable)
-allocate(brightness, shadow, 1)
+allocate(brightness, lowram, 1)
 
 
 // Shadow variable of the TM register.
 //
 // (uint8 TM shadow variable)
-allocate(tmShadow, shadow, 1)
+allocate(tmShadow, lowram, 1)
 
 
 
@@ -411,7 +411,7 @@ i16()
 
 // Wait until the end of `IRQ_VBlank`.
 //
-// REQUIRES: 8 bit A, DB access shadow RAM
+// REQUIRES: 8 bit A, DB access low-RAM
 a8()
 iu()
 code()
@@ -450,17 +450,17 @@ constant VRAM_OBJ_TILES_WADDR = 0x6000
 
 // The address of the OBJ tiles to load during VBlank
 // (long addr)
-allocate(objTilesAddr, shadow, 3)
+allocate(objTilesAddr, lowram, 3)
 
 
 // Frame counter.  Incremented once per frame.
 // (uint8)
-allocate(frameCounter, shadow, 1)
+allocate(frameCounter, lowram, 1)
 
 
 // OAM Buffer
 // (two tables: 512 byte low table and 32 byte high table)
-allocate(oamBuffer, shadow, 544)
+allocate(oamBuffer, lowram, 544)
 constant oamBuffer.size = 544
 
 constant hiOamBuffer = oamBuffer + 512

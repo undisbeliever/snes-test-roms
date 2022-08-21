@@ -6,7 +6,7 @@
 
 code()
 _wait_rom:
-allocate(_wait_ram, shadow, 1)
+allocate(_wait_ram, lowram, 1)
 allocate(_wait_zp,  zeropage, 1)
 
 

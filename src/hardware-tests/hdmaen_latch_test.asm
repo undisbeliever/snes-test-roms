@@ -18,7 +18,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../nmi_handler.inc"
@@ -157,7 +157,7 @@ a8()
 i8()
 code()
 function Main {
-allocate(_hdmaen, shadow, 1)
+allocate(_hdmaen, lowram, 1)
 
     lda.b   #NMITIMEN.vBlank
     sta.w   NMITIMEN

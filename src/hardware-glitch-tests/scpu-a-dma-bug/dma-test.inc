@@ -49,7 +49,7 @@ include "../../common.inc"
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
 createRamBlock(dp,          0x7e0000, 0x7e00ff)
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7f,      0x7f0000, 0x7fffff)
 

@@ -29,7 +29,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -54,7 +54,7 @@ constant TILEMAP_WORD_SIZE = TILEMAP_WIDTH * TILEMAP_HEIGHT
 
 // If this value is zero, the `tilemapRowBuffer` will be transferred to VRAM on the next VBlank interrupt.
 // (byte flag)
-allocate(transferTilemapRowBufferOnZero, shadow, 1)
+allocate(transferTilemapRowBufferOnZero, lowram, 1)
 
 
 constant N_ROWS_TO_TRANSFER = 2
@@ -63,14 +63,14 @@ constant ROW_BUFFER_WIDTH = 64
 // A buffer holding two rows of tilemap cells.
 //
 // (64x2 grid of tilemap words)
-allocate(tilemapRowBuffer, shadow, N_ROWS_TO_TRANSFER * ROW_BUFFER_WIDTH * 2)
+allocate(tilemapRowBuffer, lowram, N_ROWS_TO_TRANSFER * ROW_BUFFER_WIDTH * 2)
 constant tilemapRowBuffer.size = N_ROWS_TO_TRANSFER * ROW_BUFFER_WIDTH * 2
 
 
 // The VRAM word address to transfer `tilemapRowBuffer` to.
 //
 // (VRAM word address)
-allocate(tilemapRowVramWaddr, shadow, 2)
+allocate(tilemapRowVramWaddr, lowram, 2)
 
 
 // The index within the map data for the last transferred row.
@@ -79,28 +79,28 @@ allocate(tilemapRowVramWaddr, shadow, 2)
 //       to keep it in sync with `tilemapRowVramWaddr`.
 //
 // (word index into `Map.Data`)
-allocate(tilemapRowMapPos, shadow, 2)
+allocate(tilemapRowMapPos, lowram, 2)
 
 
 
 // Shadow variable of the BG1 Horizontal Offset register
 // (uint16)
-allocate(bg1_hofs, shadow, 2)
+allocate(bg1_hofs, lowram, 2)
 
 // Shadow variable of the BG1 Vertical Offset register
 // (uint16)
-allocate(bg1_vofs, shadow, 2)
+allocate(bg1_vofs, lowram, 2)
 
 
 
 // Camera Y position.
 //
 // (uint16)
-allocate(cameraYpos, shadow, 2)
+allocate(cameraYpos, lowram, 2)
 
 // Used to determine if the next row is to be uploaded to VRAM
 // (byte)
-allocate(maskedCameraYpos, shadow, 1)
+allocate(maskedCameraYpos, lowram, 1)
 
 
 
@@ -138,7 +138,7 @@ function InitTilemapRowTransfers {
 // Populate the `tilemapRowBuffer` with the next two map rows
 // and schedule a DMA transfer for the next VBlank.
 //
-// REQUIRES: 8 bit A, 16 bit Index, DB access shadow RAM, DP = 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access low-RAM, DP = 0
 a8()
 i16()
 code()

@@ -26,7 +26,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
@@ -41,22 +41,22 @@ constant VRAM_BG1_MAP_WADDR   = 0x1400
 
 
 // Temporary variables
-allocate(_tmp, shadow, 2)
+allocate(_tmp, lowram, 2)
 
 // The current DisplayModeSettings entry to load
 // (word index)
-allocate(displayModeIndex, shadow, 2)
+allocate(displayModeIndex, lowram, 2)
 
 // The current joypad state
 // Call `UpdateJoypad` to update this variable
 // (uint16, JOY state)
-allocate(joypad, shadow, 2)
+allocate(joypad, lowram, 2)
 
 
 // The current X/Y position to fire IRQ interrupt at
 // (2x uint16)
-allocate(irq_x, shadow, 2)
-allocate(irq_y, shadow, 2)
+allocate(irq_x, lowram, 2)
+allocate(irq_y, lowram, 2)
 
 constant IRQ_X_MAX = 339
 constant IRQ_Y_MAX = 261

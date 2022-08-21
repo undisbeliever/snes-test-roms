@@ -21,7 +21,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -51,7 +51,7 @@ constant MODE7_MATRIX_D = 0x0100
 // If this variable is zero, draw the next column on the next VBlank
 //
 // (byte flag)
-allocate(transferColumnOnZero, shadow, 1)
+allocate(transferColumnOnZero, lowram, 1)
 
 
 // VRAM word address of the next mode-7 column to transfer.
@@ -59,13 +59,13 @@ allocate(transferColumnOnZero, shadow, 1)
 // This variable MUST contain a value < `MODE7_TILEMAP_WIDTH`.
 //
 // (VRAM word address)
-allocate(columnVramWaddr, shadow, 2)
+allocate(columnVramWaddr, lowram, 2)
 
 
 // The tileId of the column to draw.
 //
 // (byte)
-allocate(columnTile, shadow, 1)
+allocate(columnTile, lowram, 1)
 
 
 

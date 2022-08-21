@@ -28,7 +28,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
@@ -47,12 +47,12 @@ constant CHANGE_HDMA_TABLE_INTERVAL = 2 * 60
 
 // Frame countdown timer until the next HDMA table is displayed
 // (uint16)
-allocate(countdownToNextHdmaTable,   shadow, 2)
+allocate(countdownToNextHdmaTable,   lowram, 2)
 
 
 // The HDMA table to display.
 // (word index into `HdmaTablesTable`)
-allocate(hdmaTableIndex, shadow, 2)
+allocate(hdmaTableIndex, lowram, 2)
 
 
 

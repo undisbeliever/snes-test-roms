@@ -21,7 +21,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 include "../reset_handler.inc"
@@ -34,7 +34,7 @@ constant VRAM_BG1_TILES_WADDR = 0x1000
 constant VRAM_BG1_MAP_WADDR   = 0x1400
 
 
-allocate(loopCounter, shadow, 2)
+allocate(loopCounter, lowram, 2)
 
 
 

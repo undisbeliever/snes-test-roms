@@ -17,21 +17,21 @@
 // The VBlank routine will be executed if this value is non-zero.
 //
 // (byte flag)
-allocate(__vBlankFlag, shadow, 1)
+allocate(__vBlankFlag, lowram, 1)
 
 
 // Frame counter.  Incremented every NMI interrupt
 // (uint32)
-allocate(frameCounter, shadow, 4)
+allocate(frameCounter, lowram, 4)
 
 
 
 if {defined VBLANK_READS_JOYPAD} {
     // The current state of the joypad
-    allocate(joypadCurrent, shadow, 2)
+    allocate(joypadCurrent, lowram, 2)
 
     // The newly pressed buttons on this frame
-    allocate(joypadPressed, shadow, 2)
+    allocate(joypadPressed, lowram, 2)
 }
 
 
@@ -42,7 +42,7 @@ if {defined VBLANK_READS_JOYPAD} {
 //
 // This is a macro, it should only be included once inside the Setup routine.
 //
-// REQUIRES: DB access shadow
+// REQUIRES: DB access low-RAM
 macro EnableVblankInterrupts() {
 
     // Do not process VBlank routine on the next VBlank Interrupt
@@ -60,7 +60,7 @@ macro EnableVblankInterrupts() {
 // Wait until the start of a new display frame
 // (or the end of the VBlank routine (NmiHandler)).
 //
-// REQUIRES: NMI enabled, DB access shadow
+// REQUIRES: NMI enabled, DB access low-RAM
 au()
 iu()
 code()

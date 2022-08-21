@@ -24,7 +24,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -50,19 +50,19 @@ constant TILEMAP_WORD_SIZE = TILEMAP_WIDTH * TILEMAP_HEIGHT
 // A buffer holding a column of tilemap cells.
 //
 // (32x tilemap word entries)
-allocate(columnBuffer, shadow, TILEMAP_HEIGHT * 2)
+allocate(columnBuffer, lowram, TILEMAP_HEIGHT * 2)
 constant columnBuffer.size = TILEMAP_HEIGHT * 2
 
 
 // If this value is zero, the `columnBuffer` will be transferred to VRAM on the next VBlank.
 // (byte flag)
-allocate(transferColumnBufferOnZero, shadow, 1)
+allocate(transferColumnBufferOnZero, lowram, 1)
 
 
 // The VRAM word address to transfer the `columnBuffer` to.
 //
 // (VRAM word address)
-allocate(columnBufferVramWaddr, shadow, 2)
+allocate(columnBufferVramWaddr, lowram, 2)
 
 
 // The index within the map data for the last transferred column.
@@ -71,18 +71,18 @@ allocate(columnBufferVramWaddr, shadow, 2)
 //       to keep it in sync with `columnBufferVramWaddr`.
 //
 // (Word Index into `Map`)
-allocate(columnBufferMapPos, shadow, 2)
+allocate(columnBufferMapPos, lowram, 2)
 
 
 
 // Shadow variable of the BG1 Horizontal Offset register
 // (uint16)
-allocate(bg1_hofs, shadow, 2)
+allocate(bg1_hofs, lowram, 2)
 
 
 // Used to determine if the next column is to be uploaded to VRAM
 // (byte)
-allocate(maskedHofsPreviousColumnDraw, shadow, 1)
+allocate(maskedHofsPreviousColumnDraw, lowram, 1)
 
 
 
@@ -115,7 +115,7 @@ function InitColumnBuffer {
 // Populate the `columnBuffer` with the next map column
 // and schedule a DMA transfer for the next VBlank.
 //
-// REQUIRES: 8 bit A, 16 bit Index, DB access shadow RAM, DP = 0
+// REQUIRES: 8 bit A, 16 bit Index, DB access low-RAM, DP = 0
 a8()
 i16()
 code()

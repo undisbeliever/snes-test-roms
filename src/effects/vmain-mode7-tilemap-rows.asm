@@ -21,7 +21,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -51,19 +51,19 @@ constant MODE7_MATRIX_D = 0x0100
 // If this variable is zero, draw the next row on the next VBlank
 //
 // (byte flag)
-allocate(transferRowOnZero, shadow, 1)
+allocate(transferRowOnZero, lowram, 1)
 
 
 // VRAM word address of the next mode-7 row to transfer.
 //
 // (VRAM word address)
-allocate(rowVramWaddr, shadow, 2)
+allocate(rowVramWaddr, lowram, 2)
 
 
 // The tileId of the row to draw.
 //
 // (byte)
-allocate(rowTile, shadow, 1)
+allocate(rowTile, lowram, 1)
 
 
 

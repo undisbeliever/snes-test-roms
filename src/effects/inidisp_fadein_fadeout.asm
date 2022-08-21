@@ -21,7 +21,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
@@ -38,11 +38,11 @@ constant VRAM_BG1_TILES_WADDR = 0x1000
 
 // Frame counter.  Incremented every NMI interrupt
 // (uint32)
-allocate(frameCounter, shadow, 4)
+allocate(frameCounter, lowram, 4)
 
 
 // INIDISP shadow variable
-allocate(inidisp_shadow, shadow, 1)
+allocate(inidisp_shadow, lowram, 1)
 
 
 // Execute V-Blank Routine flag
@@ -50,7 +50,7 @@ allocate(inidisp_shadow, shadow, 1)
 // The VBlank routine will be executed if this value is non-zero.
 //
 // (byte flag)
-allocate(vBlankFlag, shadow, 1)
+allocate(vBlankFlag, lowram, 1)
 
 
 
@@ -145,7 +145,7 @@ i16()
 // Wait until the start of a new display frame
 // (or the end of the VBlank routine (NmiHandler)).
 //
-// REQUIRES: NMI enabled, DB access shadow
+// REQUIRES: NMI enabled, DB access low-RAM
 au()
 iu()
 code()

@@ -24,7 +24,7 @@ include "../common.inc"
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
 createRamBlock(zeropage,    0x000000, 0x0000ff)
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 createRamBlock(wram7e,      0x7e2000, 0x7effff)
 
@@ -66,19 +66,19 @@ constant HDMA_CHANNEL = 7
 // on the next VBlank.
 //
 // (byte flag)
-allocate(hdmaBufferVBlankFlag, shadow, 1)
+allocate(hdmaBufferVBlankFlag, lowram, 1)
 
 
 // Address of current HDMA buffer.
 // MUST point to `hdmaBuffer0` or `hdmaBuffer1`
 // MUST only be modified by `HdmaBuffer_NextBuffer`
 // (word address)
-allocate(currentHdmaBuffer, shadow, 2)
+allocate(currentHdmaBuffer, lowram, 2)
 
 
 // Shadow of `DMAP` and `BBAD` HDMA registers for the HDMA buffer
 // (word)
-allocate(hdmaBufferTarget, shadow, 2)
+allocate(hdmaBufferTarget, lowram, 2)
 
 
 // HDMA double buffers
@@ -114,7 +114,7 @@ macro HdmaBuffer_Init(evaluate dmap, evaluate bbad) {
 //
 // RETURN: x = currentHdmaBuffer = the new HDMA buffer
 //
-// DB access Low-RAM
+// DB access low-RAM
 au()
 i16()
 code()
@@ -142,7 +142,7 @@ EndIf:
 // The HDMA registers will be updated on the next VBlank.
 //
 // REQUIRES: 8 bit A, 16 bit Index
-// DB access Low-RAM
+// DB access low-RAM
 macro HdmaBuffer_Commmit() {
     assert8a()
 
@@ -580,13 +580,13 @@ namespace CentreXIsOffscreenRight {
 
 // Window position
 // (2x sint16)
-allocate(xPos, shadow, 2)
-allocate(yPos, shadow, 2)
+allocate(xPos, lowram, 2)
+allocate(yPos, lowram, 2)
 
 // Window velocity
 // (2x sint16)
-allocate(xVelocity, shadow, 2)
-allocate(yVelocity, shadow, 2)
+allocate(xVelocity, lowram, 2)
+allocate(yVelocity, lowram, 2)
 
 
 constant _SHAPE_HALF_WIDTH  = 55

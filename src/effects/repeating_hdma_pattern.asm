@@ -33,7 +33,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(shadow,      0x7e0100, 0x7e1f7f)
+createRamBlock(lowram,      0x7e0100, 0x7e1f7f)
 createRamBlock(stack,       0x7e1f80, 0x7e1fff)
 
 
@@ -64,10 +64,10 @@ constant CLOUDS_Y_VELOCITY =  0x00cccc;
 
 // BG3 horizontal and vertical offset shadows (with storage for fractional-subpixels)
 // (2x 16:16 unsigned fractional integer)
-allocate(bg3_hofs_sx, shadow, 2)
-allocate(bg3_hofs, shadow, 2)
-allocate(bg3_vofs_sx, shadow, 2)
-allocate(bg3_vofs, shadow, 2)
+allocate(bg3_hofs_sx, lowram, 2)
+allocate(bg3_hofs, lowram, 2)
+allocate(bg3_vofs_sx, lowram, 2)
+allocate(bg3_vofs, lowram, 2)
 
 
 // A double-buffer to store the HDMA pattern to.
@@ -76,8 +76,8 @@ allocate(bg3_vofs, shadow, 2)
 // to write to.
 //
 // (2x uint16[HDMA_PATTERN_LINES] )
-allocate(hdmaPatternBuffer_A, shadow, 2 * HDMA_PATTERN_LINES)
-allocate(hdmaPatternBuffer_B, shadow, 2 * HDMA_PATTERN_LINES)
+allocate(hdmaPatternBuffer_A, lowram, 2 * HDMA_PATTERN_LINES)
+allocate(hdmaPatternBuffer_B, lowram, 2 * HDMA_PATTERN_LINES)
 
 
 // Flag to determine which of the two HDMA Pattern buffers is active.
@@ -86,7 +86,7 @@ allocate(hdmaPatternBuffer_B, shadow, 2 * HDMA_PATTERN_LINES)
 // Non-Zero = hdmaPatternBuffer_B
 //
 // (byte flag)
-allocate(activeHdmaPatternBuffer, shadow, 1)
+allocate(activeHdmaPatternBuffer, lowram, 1)
 
 
 
