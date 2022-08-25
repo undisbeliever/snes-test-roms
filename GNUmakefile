@@ -6,18 +6,22 @@ MODE7_TILES_SRC	 := $(wildcard resources/*/*mode7-tiles.png)
 8BPP_TILES_SRC	 := $(wildcard resources/*/*8bpp-tiles.png)
 4BPP_TILES_SRC	 := $(wildcard resources/*/*4bpp-tiles.png)
 2BPP_TILES_SRC	 := $(wildcard resources/*/*2bpp-tiles.png)
+1BPP_TILES_SRC	 := $(wildcard resources/*/*1bpp-tiles.png)
 BIN_RESOURCES_SRC:= $(wildcard resources/*/*.asm)
 
 MODE7_TILES      := $(patsubst resources/%.png,gen/%.tiles, $(MODE7_TILES_SRC))
 8BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(8BPP_TILES_SRC))
 4BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(4BPP_TILES_SRC))
 2BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(2BPP_TILES_SRC))
+1BPP_TILES       := $(patsubst resources/%.png,gen/%.tiles, $(1BPP_TILES_SRC))
+
 BIN_RESOURCES    := $(patsubst resources/%.asm,gen/%.bin, $(BIN_RESOURCES_SRC))
 
 MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
 8BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(8BPP_TILES_SRC))
 4BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(4BPP_TILES_SRC))
 2BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(2BPP_TILES_SRC))
+1BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(1BPP_TILES_SRC))
 
 4BPP_IMAGES	 := inidisp-fadein-fadeout/game inidisp-fadein-fadeout/map
 
@@ -28,6 +32,7 @@ RESOURCES := $(MODE7_TILES) $(MODE7_PALETTES) \
              $(8BPP_TILES) $(8BPP_PALETTES) \
              $(4BPP_TILES) $(4BPP_PALETTES) \
              $(2BPP_TILES) $(2BPP_PALETTES) \
+             $(1BPP_TILES) $(1BPP_PALETTES) \
              $(patsubst %,gen/%.4bpp,$(4BPP_IMAGES)) $(patsubst %,gen/%.tilemap,$(4BPP_IMAGES)) $(patsubst %,gen/%.palette,$(4BPP_IMAGES)) \
              $(BIN_RESOURCES)
 
@@ -99,6 +104,9 @@ $(VMAIN_REMAPPING_BINARIES): $(VMAIN_REMAPPING_INC_FILES)
 .PHONY: resources
 resources: $(RESOURCES)
 $(BINARIES): $(RESOURCES)
+
+gen/%-1bpp-tiles.tiles gen/%-1bpp-tiles.pal: resources/%-1bpp-tiles.png
+	python3 tools/png2snes.py -f 1bpp -t gen/$*-1bpp-tiles.tiles -p gen/$*-1bpp-tiles.pal $<
 
 gen/%-2bpp-tiles.tiles gen/%-2bpp-tiles.pal: resources/%-2bpp-tiles.png
 	python3 tools/png2snes.py -f 2bpp -t gen/$*-2bpp-tiles.tiles -p gen/$*-2bpp-tiles.pal $<
