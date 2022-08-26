@@ -431,7 +431,6 @@ assert(MARGIN_RIGHT >= 1)
     rep     #$20
 a16()
     lda.w   cursorIndex
-AfterLoadCursorIndex_A16:
     and.w   #CURSOR_INDEX_ROW_MASK
     clc
     adc.w   #BUFFER_WIDTH + MARGIN_LEFT
@@ -608,11 +607,11 @@ AfterX:
         jsr     NewLine
         bra     ++
     +
+        stx.w   cursorIndex
+
         lda.b   #Font.SPACE
         sta.l   charBuffer - 1,x
     +
-
-    stx.w   cursorIndex
 
     // Transfer `charBuffer` to VRAM on the next VBlank
     stz.w   charBufferClean
