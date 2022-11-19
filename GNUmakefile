@@ -24,6 +24,10 @@ MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
 1BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(1BPP_TILES_SRC))
 
 4BPP_IMAGES	 := inidisp-fadein-fadeout/game inidisp-fadein-fadeout/map
+2BPP_IMAGES	 := 
+
+4BPP_IMAGES	 += hdma-textbox-wipe/bg1 hdma-textbox-wipe/bg2
+2BPP_IMAGES	 += hdma-textbox-wipe/bg3
 
 
 BINARIES  := $(patsubst src/%.asm,bin/%.sfc,$(ASM_FILES))
@@ -34,6 +38,7 @@ RESOURCES := $(MODE7_TILES) $(MODE7_PALETTES) \
              $(2BPP_TILES) $(2BPP_PALETTES) \
              $(1BPP_TILES) $(1BPP_PALETTES) \
              $(patsubst %,gen/%.4bpp,$(4BPP_IMAGES)) $(patsubst %,gen/%.tilemap,$(4BPP_IMAGES)) $(patsubst %,gen/%.palette,$(4BPP_IMAGES)) \
+             $(patsubst %,gen/%.2bpp,$(2BPP_IMAGES)) $(patsubst %,gen/%.tilemap,$(2BPP_IMAGES)) $(patsubst %,gen/%.palette,$(2BPP_IMAGES)) \
              $(BIN_RESOURCES)
 
 
@@ -123,6 +128,9 @@ gen/%-mode7-tiles.tiles gen/%-mode7-tiles.pal: resources/%-mode7-tiles.png
 
 gen/%.4bpp gen/%.tilemap gen/%.palette: resources/%.png resources/%-palette.png tools/image2snes.py tools/_snes.py
 	python3 tools/image2snes.py -f 4bpp -t gen/$*.4bpp -m gen/$*.tilemap -p gen/$*.palette resources/$*.png resources/$*-palette.png
+
+gen/%.2bpp gen/%.tilemap gen/%.palette: resources/%.png resources/%-palette.png tools/image2snes.py tools/_snes.py
+	python3 tools/image2snes.py -f 2bpp -t gen/$*.2bpp -m gen/$*.tilemap -p gen/$*.palette resources/$*.png resources/$*-palette.png
 
 
 $(BIN_RESOURCES): gen/%.bin: resources/%.asm
