@@ -135,10 +135,6 @@ function SetupHdma {
     stx.w   A1T7
     stz.w   A1B7
 
-    // Enable HDMA
-    lda.b   #HDMAEN.dma7
-    sta.w   HDMAEN
-
     rts
 }
 
@@ -161,6 +157,13 @@ macro VBlank() {
 
     lda.w   textboxHeight
     sta.w   hdmaBuffer + TEXTBOX_HEIGHT_OFFSET
+
+
+    // Enable HDMA.
+    // HDMA must be enabled during VBlank.
+    // There is no need to write to `HDMAEN` on every VBlank, it can be written to on a single VBlank.
+    lda.b   #HDMAEN.dma7
+    sta.w   HDMAEN
 }
 
 include "../vblank_interrupts.inc"
