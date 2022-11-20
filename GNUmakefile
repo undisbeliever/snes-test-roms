@@ -29,6 +29,8 @@ MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
 4BPP_IMAGES	 += hdma-textbox-wipe/bg1 hdma-textbox-wipe/bg2
 2BPP_IMAGES	 += hdma-textbox-wipe/bg3
 
+2BPP_IMAGES	 += hdma-hoffset-examples/vertical-bar-2bpp
+
 
 BINARIES  := $(patsubst src/%.asm,bin/%.sfc,$(ASM_FILES))
 
