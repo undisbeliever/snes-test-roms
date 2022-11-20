@@ -368,12 +368,12 @@ i16()
 constant TEXTBOX_HEIGHT_OFFSET = 2
 
 
-// HDMA Table for the `TM` register.
+// HDMA Table for the `TM` register (one register transfer pattern).
 HdmaTable:
-    db  32              // 32 scanlines, non-repeat mode
+    db  32              // 32 scanlines, non-repeat entry
         db  0x13        // TM = BG1, BG2, OBJ
 
-    db  64              // 64 scanlines, non-repeat mode
+    db  64              // 64 scanlines, non-repeat entry
         db  0x04        // TM = BG3
 
     db  1               // 1 scanline

@@ -151,25 +151,25 @@ i16()
 
 
 
-// HDMA Table for the `BG1HOFS` register.
+// HDMA Table for the `BG1HOFS` register (one register, write twice transfer pattern).
 HdmaTable:
     // 160 scanlines with BG1HOFS = 0
     // Too many scanlines to fit in a single HDMA entry.
-    db  127             // 127 scanlines, non-repeat mode (maximum number of scanlines per entry)
+    db  127             // 127 scanlines, non-repeat entry (maximum number of scanlines per entry)
         dw  0
 
-    db  33              // 33 scanlines, non-repeat mode (+127 = 160 scanlines total)
+    db  33              // 33 scanlines, non-repeat entry (+127 = 160 scanlines total)
         dw  0           // Same data value as the previous entry
 
 
     // Change BG1HOFS every 16 scanlines
-    db  16              // 16 scanlines, non-repeat mode
+    db  16              // 16 scanlines, non-repeat entry
         dw  -2
 
-    db  16              // 16 scanlines, non-repeat mode
+    db  16              // 16 scanlines, non-repeat entry
         dw  -4
 
-    db  16              // 16 scanlines, non-repeat mode
+    db  16              // 16 scanlines, non-repeat entry
         dw  -6
 
     db  16              // 16 scanlines
