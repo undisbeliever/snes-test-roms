@@ -160,7 +160,7 @@ macro VBlank() {
 
 
     // Enable HDMA.
-    // HDMA must be enabled during VBlank.
+    // HDMA should be enabled during VBlank.
     // There is no need to write to `HDMAEN` on every VBlank, it can be written to on a single VBlank.
     lda.b   #HDMAEN.dma7
     sta.w   HDMAEN
