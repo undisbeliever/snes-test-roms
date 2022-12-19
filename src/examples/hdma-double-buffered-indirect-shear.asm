@@ -344,15 +344,15 @@ i16()
     MainLoop:
         jsr     WaitFrame
 
-        jsr     ProcessShearAnimation
-
-
-        // Reset the ROM after N cycles
+        // Reset the demo after RESET_DELAY frames
+        // Must be done immediately after WaitFrame to prevent screen tearing.
         ldx.w   frameCounter
         cpx.w   #RESET_DELAY
         bcc     +
             jmp     ResetHandler
         +
+
+        jsr     ProcessShearAnimation
 
         jmp     MainLoop
 }
