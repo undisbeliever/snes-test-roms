@@ -961,9 +961,12 @@ constant CGDATAREAD = 0x213B
 //   * Latched on `SLHV` read or Pin 6 of Port 2(bit 6 `WRIO`) falling trigger.
 //   * Range 0 to 339
 //   * Visible range: 22 - 277
-//   * Bits 1-7 of high byte are open bus. Should mask bits 0-8.
+//   * Bits 1-7 of the high byte are open bus and should be masked
 //   * High/Low order reset on `STAT78` read.
 constant OPHCT = 0x213C
+    constant OPHCT.mask = 0x1ff
+    constant OPHCT.max = 339
+
 
 // Vertical Scanline Location
 //(read, read twice, any)
@@ -972,12 +975,14 @@ constant OPHCT = 0x213C
 //
 // Notes:
 //   * Latched on `SLHV` read or Pin 6 of Port 2(bit 6 `WRIO`) falling trigger.
-//   * Range 0 to 261 NTSC(+1 when interlacing)
-//   * Range 0 to 312 PAL(+1 when interlacing)
+//   * Range 0 to 261 NTSC (+1 when interlacing)
+//   * Range 0 to 311 PAL (+1 when interlacing)
 //   * Visible range 1 - 224, 1 - 239? on overscan.
-//   * Bits 1-7 of high byte are open bus. Should mask bits 0-8.
+//   * Bits 1-7 of the high byte are open bus and should be masked
 //   * High/Low order reset on `STAT78` read.
 constant OPVCT = 0x213D
+    constant OPVCT.mask = 0x1ff
+    constant OPVCT.max = 312
 
 
 
