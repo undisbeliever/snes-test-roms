@@ -1,7 +1,7 @@
 // Auto joypad read timing test
 //
 // This test is used to help determine the H-Time that the
-// NMITIMEN auto-joy read flag is set and cleared.
+// HVBJOY auto-joy read flag is set and cleared.
 //
 // Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
@@ -293,7 +293,7 @@ i16()
 rodata(rodata0)
 TitleAndVersionStr:
 evaluate TEST_VERSION = DoTest.TEST_VERSION
-    db  "\nNMITIMEN autojoy timing test", "version {TEST_VERSION}", 0
+    db  "\n", "HVBJOY autojoy timing test", "\n", "version {TEST_VERSION}", 0
 
 namespace Resources {
 
