@@ -4,10 +4,10 @@
 // While working on the `dma-ends-hdma-start-1-ch.asm` test, I wondered if the previous value read
 // by the DMA controller contributed to the HDMA failure.
 //
-// This test will setup a DMA from Work-RAM to a unused B-Bus address that is designed to end when
-// HDMA starts.  The last value read by the DMA controller is slowly incremented from 0x00 to 0xff.
-// The HDMA state registers are checked during VBlank to detect any HDMA failures and the results
-// for each test value are displayed on screen.
+// This test will setup a DMA from Work-RAM to the PPU that is designed to end when HDMA starts.
+// The last value read by the DMA controller is slowly incremented from 0x00 to 0xff. The HDMA state
+// registers are checked during VBlank to detect any HDMA failures and the results for each test
+// value are displayed on screen.
 //
 // To eliminate NMI jitter and other timing issues, each test value is repeated multiple times with
 // multiple DMA lengths to ensure at least one DMA transfer ends at the target time.
@@ -58,7 +58,7 @@ constant DMA_DELAY_CHANNEL = 6
 constant HDMA_CHANNEL = 0
 
 
-// 0x21ff is chosen because nothing is mapped to it.
+// $2104 (OAMDATA) is chosen because there are no Objects on screen and it is visible in the Mesen Event Viewer.
 constant DMA_DELAY_TARGET = 0x2104
 
 
