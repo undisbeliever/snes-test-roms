@@ -109,6 +109,12 @@ VMAIN_REMAPPING_BINARIES := $(filter bin/vmain-address-remapping/%.sfc, $(BINARI
 $(VMAIN_REMAPPING_BINARIES): $(VMAIN_REMAPPING_INC_FILES)
 
 
+QUICK_MODEL_1_DMA_CRASH_INC_FILES := $(wildcard src/hardware-glitch-tests/quick-model-1-dma-crash/*.inc)
+QUICK_MODEL_1_DMA_CRASH_BINARIES := $(filter bin/hardware-glitch-tests/quick-model-1-dma-crash/%.sfc, $(BINARIES))
+
+$(QUICK_MODEL_1_DMA_CRASH_BINARIES): $(QUICK_MODEL_1_DMA_CRASH_INC_FILES)
+
+
 
 .PHONY: resources
 resources: $(RESOURCES)
