@@ -1,7 +1,7 @@
 // A Model-1 HDMA/DMA crash test ROM
 //
-// This test is designed to recreate the conditions of the model 1/1/1 DMA/HDMA crash on the first
-// Horizontal Blanking period (frame 0, scanline 0).
+// This test is designed to recreate the conditions of the model 1/1/1 DMA/HDMA crash as quickly as
+// possible (frame 0, scanline 1 or 0).
 //
 // Test output:
 //   * Red screen: A break interrupt occurred (crash).
@@ -9,31 +9,25 @@
 //   * Green HDMA gradient:  No crashes detected and no HDMA errors.
 //     The S-CPU may have done something unexpected, but it did not execute a `brk` or `cop` instructions.
 //
-// This test is very finicky.  You will need to reset the console multiple times to get a crash or
-// HDMA failure.  To help improve timing there are 4 versions of this test, each with different DMA
-// transfer sizes.
 //
-// DMA_TRANSFER_SIZE of 21 to 24 show crashes and HDMA failures on my 1/1/1 Super Famicom console
-// in less than 10 resets using an SD2SNES Rev J running firmware 1.11.0 and the following settings:
-//  * In Game Hook: off
-//  * Auto region patch: off
-//  * 1CHIP transient fixes off
-//  * Brightness Limit: off
-//  * Reset patch for clock phase: off
+// It has been discovered that a sd2snes has a different reset position to a normal cartridge.
+// To make matters worse, there is a 10 dot jitter in the reset position.  To minimize the
+// reset-jitter half of the tests (`_test-no-irq-delay.inc`) use an IRQ interrupt to delay the test
+// by a single scanline to minimize the test-start jitter to 3 dots.
 //
 //
 // Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 
-evaluate _dts = DMA_TRANSFER_SIZE
-
-define   ROM_NAME = "QUICK DMA CRASH {_dts}"
-constant VERSION = 0
-
 architecture wdc65816
 
 include "../../_common/registers.inc"
+
+
+// Memory location to store the `OPHCT` value read by the test.
+// Used to verify the IRQ delay works correctly.
+constant ophctValue = 0
 
 
 constant DISPLAY_HEIGHT = 224
@@ -48,22 +42,32 @@ macro seek(evaluate addr) {
 }
 
 
-seek(0x8000)
-
+// This macro must be invoked at the start of an IRQ or Reset ISR.
+//
 // DB = 0
 // SP = 0x01ff
-// e = 1
+// e unknown
+// d = 0
 // a8
-// i8
-function ResetHandler {
+// i unknown
+macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
+    // Latch PPU counters as early as possible
+    lda.w   SLHV
+
     clc
     xce
 
     rep     #$30
     sep     #$20
-// a8
 // i16
+// a8
 
+    // Save OPHCT counter to be read by usb2snes to verify the horizontal-position is correct
+    lda.w   OPHCT
+    sta.b   ophctValue
+
+
+    // Set backdrop color to white
     stz.w   CGADD
     lda.b   #0xff
     sta.w   CGDATA
@@ -98,7 +102,7 @@ function ResetHandler {
     stx.w   A1T0
     stz.w   A1B0
 
-    ldx.w   #DMA_TRANSFER_SIZE
+    ldx.w   #{DMA_TRANSFER_SIZE}
     stx.w   DAS0
 
     lda.b   #MDMAEN.dma0
@@ -124,11 +128,19 @@ function ResetHandler {
     nop
     nop
     nop
+    nop
+    nop
+    nop
+    nop
     lda.w   NLTR7
     cmp.b   #0xff - 1
     beq     +
         stz.w   HDMAEN
     +
+
+
+    // Disable interrupts
+    stz.w   NMITIMEN
 
 
     // Show only the backdrop
@@ -161,6 +173,7 @@ function ResetHandler {
 // DB unknown (it may be corrupted)
 // A unknown
 // I unknown
+seek(0xA000)
 function BreakHandler {
     sep     #$30
 // a8
@@ -206,48 +219,11 @@ function BreakHandler {
 
 
 
-seek(0x9000)
-
 // The block of data to transfer on using DMA
 // (using 0xff to make it easy to see on an oscilloscope)
+seek(0xB000)
 DmaBlock:
     fill 0x1000, 0xff
-
-
-
-seek(0xA000)
-
-HdmaTable:
-namespace HdmaTable {
-    // HDMA table to CGRAM (2 registers write twice)
-
-    constant SCANLINES_PER_ENTRY = 16
-
-    variable _sl = 0
-
-    variable _i = 0
-    while _i < 2 {
-        db  0x80 | 0x7f     // HDMA repeat mode
-
-        variable _j = 0
-        while _j < 0x7f {
-            evaluate c = (_sl + 8) % 64
-            if {c} > 31 {
-                evaluate c = 63 - {c}
-            }
-            _sl = _sl + 1
-
-            dw  0           // CGADD
-            dw  {c} << 5    // CGDATA
-
-            _j = _j + 1
-        }
-
-        _i = _i + 1
-    }
-
-    db 0
-}
 
 
 
@@ -284,7 +260,7 @@ seek(0xffd5)
     dw  BreakHandler
     dw  BreakHandler
     dw  BreakHandler
-    dw  BreakHandler
+    dw  IrqHandler
 
 // Emulated Interrupt Vectors
     dw  BreakHandler
