@@ -123,7 +123,7 @@ private.seek(0x00ffd5)
     dw EmptyHandler             // $fff8 - emu abort
     dw EmptyHandler             // $fffa - emu nmi
     dw ResetHandler             // $fffc - emu reset
-    dw 0                        // $fffe - emu irq
+    dw BreakHandler             // $fffe - emu brk/irq
 }
 
 private.seek(0)
