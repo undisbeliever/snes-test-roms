@@ -18,7 +18,7 @@ include "_quick-model-1-dma-crash-test.inc"
 
 
 // DB = 0
-// SP = 0x01ff
+// SP = 0x01??
 // d = 0
 // i = 1
 // e = 1

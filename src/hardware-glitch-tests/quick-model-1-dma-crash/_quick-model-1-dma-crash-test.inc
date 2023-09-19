@@ -45,7 +45,7 @@ macro seek(evaluate addr) {
 // This macro must be invoked at the start of an IRQ or Reset ISR.
 //
 // DB = 0
-// SP = 0x01ff
+// SP unknown
 // e unknown
 // d = 0
 // a8
@@ -53,6 +53,9 @@ macro seek(evaluate addr) {
 macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
     // Latch PPU counters as early as possible
     lda.w   SLHV
+
+    // Not setting Stack Pointer (not enough CPU time).
+    // The high byte of SP is 0x01 on reset and this test only uses a single variable at 0x00
 
     clc
     xce
