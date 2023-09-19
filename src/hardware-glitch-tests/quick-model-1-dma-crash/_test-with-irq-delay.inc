@@ -14,6 +14,9 @@ evaluate _dtl = DMA_TRANSFER_LENGTH
 define   ROM_NAME = "QUICK DMA CRASH IRQ {_dtl}"
 constant VERSION = 2
 
+define USES_IRQ_INTERRUPTS
+
+
 include "_quick-model-1-dma-crash-test.inc"
 
 

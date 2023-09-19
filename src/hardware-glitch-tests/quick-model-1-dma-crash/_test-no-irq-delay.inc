@@ -13,10 +13,6 @@ constant VERSION = 2
 include "_quick-model-1-dma-crash-test.inc"
 
 
-// NO IRQ
-constant IrqHandler = BreakHandler
-
-
 // DB = 0
 // SP = 0x01??
 // d = 0

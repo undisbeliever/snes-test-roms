@@ -42,6 +42,11 @@ macro seek(evaluate addr) {
 }
 
 
+seek(0xA000)
+include "../../break_handler.inc"
+
+
+
 // This macro must be invoked at the start of an IRQ or Reset ISR.
 //
 // DB = 0
@@ -60,8 +65,10 @@ macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
     clc
     xce
 
-    rep     #$30
-    sep     #$20
+    rep     #$38
+    sep     #$24
+// d flag clear
+// i flag set
 // i16
 // a8
 
@@ -141,12 +148,48 @@ macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
         stz.w   HDMAEN
     +
 
+    jsr     ResetRegistersExceptHdma
 
-    // Disable interrupts
+
+    lda.b   #0xf
+    sta.w   INIDISP
+
+    -
+        wai
+        bra -
+}
+
+
+
+// NOTE: Does not reset HDMA
+//
+// a8
+// DB access registers
+seek(0xB000)
+function ResetRegisters {
+    stz.w   HDMAEN
+
+// Fallthrough
+}
+
+
+function ResetRegistersExceptHdma {
     stz.w   NMITIMEN
 
+    lda.b   #INIDISP.force
+    sta.w   INIDISP
 
-    // Show only the backdrop
+    stz.w   BGMODE
+
+    stz.w   MOSAIC
+
+    lda.b   #0xff
+    sta.w   BG1VOFS
+    sta.w   BG1VOFS
+
+    stz.w   BG1HOFS
+    stz.w   BG1HOFS
+
     stz.w   TM
     stz.w   TS
     stz.w   TMW
@@ -158,73 +201,13 @@ macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
     stz.w   WOBJSEL
     stz.w   SETINI
 
-
-    lda.b   #0xf
-    sta.w   INIDISP
-
-    -
-        wai
-        bra -
-}
-
-
-
-// Break ISR
-//
-// Display a dark red screen
-//
-// DB unknown (it may be corrupted)
-// A unknown
-// I unknown
-seek(0xA000)
-function BreakHandler {
-    sep     #$30
-// a8
-// i8
-    phk
-    plb
-// DB = 0
-
-    // Disable HDMA
-    stz.w   HDMAEN
-    stz.w   NMITIMEN
-
-    lda.b   #INIDISP.force
-    sta.w   INIDISP
-
-    // Set the backdrop color to dark red
-    stz.w   CGADD
-
-    lda.b   #FAILURE_COLOR
-    sta.w   CGDATA
-    lda.b   #FAILURE_COLOR >> 8
-    sta.w   CGDATA
-
-    // Show only the backdrop
-    stz.w   TM
-    stz.w   TS
-    stz.w   TMW
-    stz.w   TSW
-
-    stz.w   CGWSEL
-    stz.w   CGADSUB
-
-    stz.b   WOBJSEL
-    stz.b   SETINI
-
-    lda.b   #0xf
-    sta.w   INIDISP
-
-    -
-        wai
-        bra -
+    rts
 }
 
 
 
 // The block of data to transfer on using DMA
 // (using 0xff to make it easy to see on an oscilloscope)
-seek(0xB000)
 DmaBlock:
     fill 0x1000, 0xff
 
@@ -233,6 +216,9 @@ DmaBlock:
 // SNES Header
 seek(0xffb0)
 SnesHeader:
+    // Reset map
+    map 0, 0, 256
+
     db  "  "                    // $ffbo - 2 Digit marker code (blank - unlicensed)
     db  "    "                  // $ffb2 - 4 Character game code (blank - unlicensed)
     db  0, 0, 0, 0, 0, 0, 0     // $ffb6 - fixed value (7 bytes)
