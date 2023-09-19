@@ -155,8 +155,8 @@ macro QuickDmaTest(evaluate DMA_TRANSFER_SIZE) {
     stz.w   CGWSEL
     stz.w   CGADSUB
 
-    stz.b   WOBJSEL
-    stz.b   SETINI
+    stz.w   WOBJSEL
+    stz.w   SETINI
 
 
     lda.b   #0xf
