@@ -59,7 +59,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "DMA ENDS AT HDMA START"
-define VERSION = 0
+define VERSION = 2
 
 architecture wdc65816-strict
 
@@ -144,7 +144,7 @@ include "../../textbuffer.inc"
 
 rodata(rodata0)
 namespace Text {
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
     evaluate TEST_VERSION = TEST_VERSION
 
     evaluate dma_channel = DMA_CHANNEL
@@ -211,7 +211,7 @@ i16()
 code()
 function SetupTest {
     // This value must be incremented whenever `SetupTest` is changed
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
 
     evaluate hdma_channel = HDMA_CHANNEL
 
@@ -283,7 +283,7 @@ macro VBlank() {
 
 
     // This value must be incremented whenever the VBlank macro is changed
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
 
     evaluate dma_channel = DMA_CHANNEL
     evaluate dma_delay_channel = DMA_DELAY_CHANNEL
@@ -388,7 +388,7 @@ i16()
 code()
 function ProcessTestResults {
     // This value must be incremented whenever this subroutine is changed
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
 
     // Use `A2An` to detect if HDMA was processed in the previous frame.
     ldx.w   hdmaA2an
@@ -540,7 +540,7 @@ au()
 iu()
 code()
 function NmiHandler {
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
 
     // This ISR must not use any branch or index-addressing instructions.
 

@@ -8,7 +8,7 @@
 evaluate _dtl = DMA_TRANSFER_LENGTH
 
 define   ROM_NAME = "QUICK DMA CRASH {_dtl}"
-constant VERSION = 2
+constant VERSION = 3
 
 include "_quick-model-1-dma-crash-test.inc"
 
