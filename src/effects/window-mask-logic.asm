@@ -374,7 +374,7 @@ function Main {
 namespace HdmaTables {
 
 constant N_SEGMENTS = 5
-constant W1_HEIGHT = 34
+constant W1_HEIGHT = 35
 constant W1_PADDING = (224 - W1_HEIGHT * N_SEGMENTS) / (N_SEGMENTS + 1)
 
 constant W1_LEFT = 160
@@ -421,7 +421,7 @@ Window2:
         while _j < W2_HEIGHT {
             db  _left, _right                         // left/right window values
 
-            if _j + 1 < W2_HEIGHT / 2 {
+            if _j < W2_HEIGHT / 2 {
                 _left = _left - 1
                 _right = _right + 1
             } else {
