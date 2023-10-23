@@ -176,7 +176,6 @@ macro VBlank() {
     lda.b   wobjselShadow
     sta.w   WOBJSEL
 
-    lda.b   #WOBJLOG.logic.or << WOBJLOG.color.shift
     lda.b   wobjlogShadow
     sta.w   WOBJLOG
 
