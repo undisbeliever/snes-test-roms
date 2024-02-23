@@ -9,7 +9,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "OBJECT DROPOUT TEST"
-define VERSION = 1
+define VERSION = 2
 
 architecture wdc65816-strict
 
@@ -144,6 +144,11 @@ macro _obj(evaluate x, evaluate y, evaluate tile) {
     __nObjects = __nObjects + 1
 }
 
+macro _obj_flipped(evaluate x, evaluate y, evaluate tile) {
+    db  {x}, {y}, {tile}, (({tile} & 7) << 2) | OamFormat.attr.hFlip | OamFormat.attr.vFlip
+    __nObjects = __nObjects + 1
+}
+
 
 Obj_Oam:
     // 32 sprites per scanline overflow test
@@ -183,7 +188,7 @@ Obj_Oam:
         constant Y_SPACING =  3
 
         constant X_START   = (SCREEN_WIDTH - X_SPACING * (N_SPRITES - 1) - 32) / 2
-        constant Y_START   = (SCREEN_HEIGHT - Y_SPACING * N_SPRITES/2 - 32) / 2
+        constant Y_START   = (SCREEN_HEIGHT - Y_SPACING * N_SPRITES/2 - 32) / 3
 
         variable _i = 0
         while _i < N_SPRITES {
@@ -194,6 +199,29 @@ Obj_Oam:
             }
 
             _obj(X_START + _i * X_SPACING, _y, _i)
+
+            _i = _i + 1
+        }
+    }
+
+    // 34 tile-slivers per scanline overflow test
+    namespace RangeOverflowTest_Flipped {
+        constant N_SPRITES = 12
+        constant X_SPACING = 16
+        constant Y_SPACING =  3
+
+        constant X_START   = (SCREEN_WIDTH - X_SPACING * (N_SPRITES - 1) - 32) / 2
+        constant Y_START   = (SCREEN_HEIGHT - Y_SPACING * N_SPRITES/2 - 32) * 2 / 3
+
+        variable _i = 0
+        while _i < N_SPRITES {
+            if _i < N_SPRITES / 2 {
+                variable _y = Y_START + _i * Y_SPACING
+            } else {
+                variable _y = Y_START + (N_SPRITES - _i) * Y_SPACING
+            }
+
+            _obj_flipped(X_START + _i * X_SPACING, _y, _i)
 
             _i = _i + 1
         }
@@ -227,6 +255,10 @@ Obj_OamHiTable:
         fill    N_SPRITES / 4, 0
     }
     namespace RangeOverflowTest {
+        assert(N_SPRITES % 4 == 0)
+        fill    N_SPRITES / 4, %10101010
+    }
+    namespace RangeOverflowTest_Flipped {
         assert(N_SPRITES % 4 == 0)
         fill    N_SPRITES / 4, %10101010
     }
