@@ -1,5 +1,16 @@
 // Object dropout test
 //
+// CHANGELOG:
+//
+// v2:
+//  * Added RangeOverflowTest_Flipped test
+//
+// v3:
+//  * Added X256BugTest_TilesPerScanlineLimit
+//  * Moved some sprites down 4px on sprites-per-scanline test to show the expected sprite
+//    position if there were no sprite/tile per scanline limits
+//
+//
 // Copyright (c) 2024, Marcus Rowe <undisbeliever@gmail.com>.
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
@@ -9,7 +20,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "OBJECT DROPOUT TEST"
-define VERSION = 2
+define VERSION = 3
 
 architecture wdc65816-strict
 
@@ -158,21 +169,21 @@ Obj_Oam:
         constant SPACING        = 10
         constant C_SPACING      = 2
         constant LEFT_X         = 12
-        constant Y_POS          = 32 - 8 / 2
+        constant Y_POS          = 8
 
         constant CENTER_INDEX =  N_LEFT_RIGHT
         constant RIGHT_INDEX = N_SPRITES - N_LEFT_RIGHT
         constant N_CENTER = (N_SPRITES - N_LEFT_RIGHT * 2)
 
         constant RIGHT_X  = SCREEN_WIDTH - N_LEFT_RIGHT * SPACING - LEFT_X
-        constant CENTER_X = (SCREEN_WIDTH - N_CENTER * C_SPACING) / 2
+        constant CENTER_X = (SCREEN_WIDTH - N_CENTER * C_SPACING - 8) / 2
 
         variable _i = 0
         while _i < N_SPRITES {
             if _i < CENTER_INDEX {
                 _obj(LEFT_X + _i * SPACING, Y_POS, _i)
             } else if _i < RIGHT_INDEX {
-                _obj(CENTER_X + (_i - CENTER_INDEX) * C_SPACING, Y_POS, _i)
+                _obj(CENTER_X + (_i - CENTER_INDEX) * C_SPACING, Y_POS + 4, _i)
             } else {
                 _obj(RIGHT_X + (_i - RIGHT_INDEX) * SPACING, Y_POS, _i)
             }
@@ -188,7 +199,7 @@ Obj_Oam:
         constant Y_SPACING =  3
 
         constant X_START   = (SCREEN_WIDTH - X_SPACING * (N_SPRITES - 1) - 32) / 2
-        constant Y_START   = (SCREEN_HEIGHT - Y_SPACING * N_SPRITES/2 - 32) / 3
+        constant Y_START   = 32
 
         variable _i = 0
         while _i < N_SPRITES {
@@ -211,7 +222,7 @@ Obj_Oam:
         constant Y_SPACING =  3
 
         constant X_START   = (SCREEN_WIDTH - X_SPACING * (N_SPRITES - 1) - 32) / 2
-        constant Y_START   = (SCREEN_HEIGHT - Y_SPACING * N_SPRITES/2 - 32) * 2 / 3
+        constant Y_START   = 88
 
         variable _i = 0
         while _i < N_SPRITES {
@@ -228,17 +239,17 @@ Obj_Oam:
     }
 
     // If a sprite has an X position of 256, it counts towards the 32 sprites per scanline limit
-    namespace X256BugTest {
+    namespace X256BugTest_SpritesPerScanlineLimit {
         constant N_OFFSCREEN = 8
         constant N_ONSCREEN  = 32
 
         constant X_SPACING = 8
 
-        constant Y_POS   = SCREEN_HEIGHT - 8 - TimeOverflowTest.Y_POS
+        constant Y_POS = 144
 
         variable _i = 0
         while _i < N_OFFSCREEN {
-            _obj(256, Y_POS, _i)
+            _obj(256, Y_POS + 4, _i)
             _i = _i + 1
         }
         while _i < N_OFFSCREEN + N_ONSCREEN {
@@ -247,7 +258,30 @@ Obj_Oam:
         }
     }
 
-    fill    (128 - __nObjects) * 4, -32
+    // If a sprite has an X position of 256, all tiles in the sprite count towards the 34 tile-slivers per scanline overflow test
+    namespace X256BugTest_TilesPerScanlineLimit {
+        constant N_OFFSCREEN = 4
+        constant N_ONSCREEN  = 8
+        constant N_SPRITES   = N_OFFSCREEN + N_ONSCREEN
+
+        constant X_SPACING = 32
+
+        constant Y_POS   = X256BugTest_SpritesPerScanlineLimit.Y_POS + 32 + 8
+
+        assert(N_SPRITES < 32)
+
+        variable _i = 0
+        while _i < N_ONSCREEN {
+            _obj(_i * X_SPACING, Y_POS, _i)
+            _i = _i + 1
+        }
+        while _i < N_SPRITES {
+            _obj(256, Y_POS + 4, _i)
+            _i = _i + 1
+        }
+    }
+
+    fill    (128 - __nObjects) * 4, -16
 
 Obj_OamHiTable:
     namespace TimeOverflowTest {
@@ -262,12 +296,19 @@ Obj_OamHiTable:
         assert(N_SPRITES % 4 == 0)
         fill    N_SPRITES / 4, %10101010
     }
-    namespace X256BugTest {
+    namespace X256BugTest_SpritesPerScanlineLimit {
         assert(N_OFFSCREEN % 4 == 0)
         fill    N_OFFSCREEN / 4, %11110101  // half large and half small
 
         assert(N_ONSCREEN % 4 == 0)
         fill    N_ONSCREEN / 4, 0
+    }
+    namespace X256BugTest_TilesPerScanlineLimit {
+        assert(N_ONSCREEN % 4 == 0)
+        fill    N_ONSCREEN / 4, %10101010
+
+        assert(N_OFFSCREEN % 4 == 0)
+        fill    N_OFFSCREEN / 4, %11110101  // half large and half small
     }
     fill    (128 - __nObjects) / 4, 0
 
