@@ -57,6 +57,27 @@ macro EnableVblankInterrupts() {
 
 
 
+// Enable VBlank interrupts with auto joypad read disabled
+//
+// NOTE: This macro disables IRQ interrupts and Auto-Joypad read.
+//
+// This is a macro, it should only be included once inside the Setup routine.
+//
+// REQUIRES: DB access low-RAM
+macro EnableVblankInterrupts_NoAutoJoypad() {
+
+    // Do not process VBlank routine on the next VBlank Interrupt
+    stz.w   __vBlankFlag
+
+    // Clear NMI flag
+    lda.w   RDNMI
+
+    lda.b   #NMITIMEN.vBlank
+    sta.w   NMITIMEN
+}
+
+
+
 // Wait until the start of a new display frame
 // (or the end of the VBlank routine (NmiHandler)).
 //
