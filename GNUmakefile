@@ -24,7 +24,7 @@ MODE7_PALETTES   := $(patsubst resources/%.png,gen/%.pal, $(MODE7_TILES_SRC))
 1BPP_PALETTES    := $(patsubst resources/%.png,gen/%.pal, $(1BPP_TILES_SRC))
 
 4BPP_IMAGES	 := inidisp-fadein-fadeout/game inidisp-fadein-fadeout/map
-2BPP_IMAGES	 := 
+2BPP_IMAGES	 := test-patterns/scanline-bit-pattern
 
 4BPP_IMAGES	 += hdma-textbox-wipe/bg1 hdma-textbox-wipe/bg2
 2BPP_IMAGES	 += hdma-textbox-wipe/bg3

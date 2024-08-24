@@ -1,0 +1,78 @@
+#
+# Image created using python.
+#
+# This image is used to display a binary 8-bit value by writing `value - scanline -1`
+# to BGxVOFS on every Horizontal-Blank.
+#
+# The image is designed to be used in Mode 0 so 2 layers can be combined to
+# form a 16-bit output # with a unique on and off CGRAM index for all 16 bits.
+#
+
+import argparse
+
+from PIL import Image
+from PIL.ImageColor import getrgb
+
+BIT_SET_COLOR_NAMES = [
+    "red", "lime", "yellow", "lightblue", "lightpink", "cyan", "violet", "white"
+]
+
+BIT_SET_COLORS = [ getrgb(c) for c in BIT_SET_COLOR_NAMES ]
+
+BIT_CLEAR_COLORS = [
+    (r // 2, g // 2, b // 2) for r, g, b in BIT_SET_COLORS
+]
+
+BG_COLOR = getrgb("black")
+
+def build_image() -> Image:
+    START_X = 0
+    X_SPACING = 12
+
+    im = Image.new('RGB', (256, 256), BG_COLOR)
+
+    for scanline in range(256):
+        for line in range(8):
+            if scanline & (1 << (7 - line)):
+                c = BIT_SET_COLORS[line]
+            else:
+                c = BIT_CLEAR_COLORS[line]
+            x = START_X + line * X_SPACING
+            im.putpixel((x, scanline), c)
+            im.putpixel((x + 1, scanline), c)
+
+    return im
+
+
+def build_pal_image() -> Image:
+    im = Image.new('RGB', (16, 2), BG_COLOR)
+
+    for bit in range(8):
+        y = (bit // 4)
+        x = (bit % 4) * 4
+
+        im.putpixel((x + 2, y), BIT_CLEAR_COLORS[bit])
+        im.putpixel((x + 3, y), BIT_SET_COLORS[bit])
+
+    return im
+
+
+def main() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--output-img", required=True, help="output image PNG file")
+    parser.add_argument("-p", "--output-pal", required=True, help="output palette PNG file")
+
+    args = parser.parse_args()
+
+    im = build_image()
+    im_pal = build_pal_image()
+
+    im.save(args.output_img, "PNG")
+    im_pal.save(args.output_pal, "PNG")
+
+    return args
+
+
+if __name__ == "__main__":
+    main()
+
