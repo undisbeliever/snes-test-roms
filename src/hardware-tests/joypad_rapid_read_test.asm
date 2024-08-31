@@ -18,7 +18,7 @@ include "../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80ffaf)
 
-createRamBlock(zeropage,           0,    0x100)
+createRamBlock(zeropage,        0x00,     0xff)
 createRamBlock(stack,       0x7e1f00, 0x7e1fff)
 
 
