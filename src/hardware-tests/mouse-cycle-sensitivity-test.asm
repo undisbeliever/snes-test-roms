@@ -9,7 +9,7 @@
 //   * If I can increment the sensitivity more than once per latch
 //     (Answer: yes)
 //
-// Copyright (c) 2024, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2024 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

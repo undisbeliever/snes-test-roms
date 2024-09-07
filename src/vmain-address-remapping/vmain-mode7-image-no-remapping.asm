@@ -1,6 +1,6 @@
 // A demonstration of a Mode 7 tile buffer with no VMAIN remapping.
 //
-// Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

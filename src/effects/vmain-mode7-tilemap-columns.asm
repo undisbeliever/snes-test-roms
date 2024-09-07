@@ -1,7 +1,7 @@
 // A simple demo that uses VMAIN to draw an entire Mode 7 tilemap column
 // in a single DMA transfer.
 //
-// Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

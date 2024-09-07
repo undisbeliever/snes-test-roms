@@ -3,7 +3,7 @@
 // This test is used to help determine the H-Time that the
 // HVBJOY auto-joy read flag is set and cleared.
 //
-// Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2023 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

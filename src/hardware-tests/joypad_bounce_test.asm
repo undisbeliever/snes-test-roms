@@ -10,7 +10,7 @@
 // CAUTION: This test is designed for one button at a time.
 // CAUTION: This test cannot read controller data and build the HDMA tables at the same time.
 //
-// Copyright (c) 2024, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2024 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

@@ -3,7 +3,7 @@
 // This test confirms there are no corrupted tiles when using the
 // `sta $0f2100` mitigation to the INIDISP open bus glitch.
 //
-// Copyright (c) 2021, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2021 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

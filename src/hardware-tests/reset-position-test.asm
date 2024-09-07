@@ -3,7 +3,7 @@
 // This test determines the PPU position at reset using the PPU H/V counters and spinloop cycle
 // counting.
 //
-// Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2023 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

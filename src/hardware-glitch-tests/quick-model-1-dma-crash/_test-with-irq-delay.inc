@@ -5,7 +5,7 @@
 // I was not able to eliminate the test-start jitter, it has been reduced from 10 dots to 3 dots.
 //
 //
-// Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2023 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

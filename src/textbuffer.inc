@@ -3,7 +3,7 @@
 //
 // A simple split-buffer text buffer for printing monospace text and hexadecimal numbers.
 //
-// Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

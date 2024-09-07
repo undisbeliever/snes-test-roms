@@ -3,7 +3,7 @@
 // NOTE: You must disable the *1CHIP transient fixes* and *Brightness limit*
 //       settings if you are running this test on an sd2snes.
 //
-// Copyright (c) 2019, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2019 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

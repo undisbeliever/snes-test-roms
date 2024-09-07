@@ -1,7 +1,7 @@
 // This test runs the quick-model-1-dma-crash without an IRQ delay.
 //
 //
-// Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2023 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

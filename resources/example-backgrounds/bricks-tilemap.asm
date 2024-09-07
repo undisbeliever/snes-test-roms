@@ -1,6 +1,6 @@
 // A brick pattern tile map
 //
-// Copyright (c) 2020, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2020 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 // 32x32 tilemap

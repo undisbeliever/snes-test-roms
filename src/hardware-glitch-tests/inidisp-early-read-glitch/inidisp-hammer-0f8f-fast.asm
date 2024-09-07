@@ -1,6 +1,6 @@
 // Constantly writes 0x0f8f to $20ff (0x8f to $20ff, 0x0f to $2100)
 //
-// Copyright (c) 2021, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2021 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

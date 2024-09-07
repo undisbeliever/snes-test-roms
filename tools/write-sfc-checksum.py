@@ -12,6 +12,8 @@
 # WARNING: This script will modify the input file.
 #
 #
+# SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com
+#
 # Distributed under the MIT License (MIT)
 #
 # Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>

@@ -1,7 +1,7 @@
 // S-CPU-A hardware DMA bug test
 // =============================
 //
-// Copyright (c) 2021, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2021 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

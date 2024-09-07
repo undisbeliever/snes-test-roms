@@ -1,6 +1,6 @@
 // An interactive test rom to demonstrate all of the window mask logic settings.
 //
-// Copyright (c) 2023, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2023 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

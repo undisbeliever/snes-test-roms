@@ -1,6 +1,6 @@
 // A simple HDMAEN latch test
 //
-// Copyright (c) 2019, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2019 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

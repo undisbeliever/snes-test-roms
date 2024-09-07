@@ -3,7 +3,7 @@
 // This animation is preformed by modifying a HDMA buffer in the VBlank routine
 // (as opposed to a double-buffered HDMA effect).
 //
-// Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

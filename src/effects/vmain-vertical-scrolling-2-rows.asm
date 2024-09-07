@@ -9,7 +9,7 @@
 // buffer in two `MDMAEN` writes.  See the `VBlank()` macro for more details.
 //
 //
-// Copyright (c) 2022, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2022 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 

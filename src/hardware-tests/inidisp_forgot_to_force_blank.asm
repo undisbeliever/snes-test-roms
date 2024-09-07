@@ -1,7 +1,7 @@
 // A simple test to show what happens when you forget to force-blank
 // before uploading data to the PPU.
 //
-// Copyright (c) 2020, Marcus Rowe <undisbeliever@gmail.com>.
+// SPDX-FileCopyrightText: © 2020 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
 
