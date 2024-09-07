@@ -4,7 +4,6 @@
 // Macros to build a function table from a given struct.
 //
 //
-// This file is part of the UnTech Game Engine.
 // SPDX-FileCopyrightText: © 2016 Marcus Rowe <undisbeliever@gmail.com>
 // Distributed under The MIT License: https://opensource.org/licenses/MIT
 
