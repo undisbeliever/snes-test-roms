@@ -1,8 +1,8 @@
 // A test ROM design to display the contact bound on key-press and key-release.
 //
 // It reads 12 bits of controller port 1 every scanline, writes the data to a buffer and waits for
-// no button presses for 2 frames.  Then it builds four HDMA tables to display ~200 scanlines after
-// button-press and ~200 scanlines before button-release.
+// no button presses for 262 scanlines (1 frame).  Then it builds four HDMA tables to display ~200
+// scanlines after button-press and ~200 scanlines before button-release.
 //
 // For each pair of vertical lines represents one button.
 // The left line is scanlines after button press and the right line is scanlines before release.
@@ -85,7 +85,7 @@ constant N_SCANLINES_TO_DISPLAY = DISPLAY_HEIGHT - Y_OFFSET
 constant WAIT_FOR_RELEASE_THREASHOLD = 262
 
 // Number of scanlines with 0 depressed buttons before displaying data.
-constant RELEASE_THREASHOLD = 262 * 2  // 2 frames
+constant RELEASE_THREASHOLD = 262  // 1 frame
 
 constant PRESS_BUFFER_SIZE = N_SCANLINES_TO_DISPLAY
 constant RELEASE_BUFFER_SIZE = 0x600
