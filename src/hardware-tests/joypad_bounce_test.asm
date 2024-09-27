@@ -80,6 +80,10 @@ constant DISPLAY_HEIGHT = 224
 constant Y_OFFSET = 10
 constant N_SCANLINES_TO_DISPLAY = DISPLAY_HEIGHT - Y_OFFSET
 
+
+// Number of scanlines of no-button presses to wait if the MainLoop starts with a button pressed
+constant WAIT_FOR_RELEASE_THREASHOLD = 262
+
 // Number of scanlines with 0 depressed buttons before displaying data.
 constant RELEASE_THREASHOLD = 262 * 2  // 2 frames
 
@@ -283,6 +287,24 @@ i16()
     MainLoop:
         lda.b   #1
         sta.b   releaseBufferNotFull
+
+        // If a button has been pressed, Wait for WAIT_FOR_RELEASE_THREASHOLD scanlines of no button presses.
+        // (To ensure buttonPressBuffer contains the initial key-press and contact bounce data)
+        ldx.w   #1
+        WaitForKeyRelease:
+            WaitForHBlank()
+
+            ReadJoypadBits_l()
+            sta.b   zpTmpByte
+
+            ReadJoypadBits_h()
+            ora.b   zpTmpByte
+            beq     +
+                ldx.w   #WAIT_FOR_RELEASE_THREASHOLD
+            +
+            dex
+            bne     WaitForKeyRelease
+
 
         // Wait until a button has been pressed
         WaitForKeyPressLoop:
