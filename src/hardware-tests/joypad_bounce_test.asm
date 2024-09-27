@@ -39,7 +39,7 @@ define ROM_SIZE = 1
 define ROM_SPEED = fast
 define REGION = Japan
 define ROM_NAME = "JOYPAD BOUNCE TEST"
-define VERSION = 0
+define VERSION = 1
 
 
 architecture wdc65816-strict
@@ -62,8 +62,9 @@ constant NmiHandler = BreakHandler.ISR
 
 
 // All four backgrounds use the same tilemap and tiles
-constant VRAM_BG_TILES_WADDR = 0x1000
-constant VRAM_BG_MAP_WADDR   = 0x0000
+constant VRAM_BG_TILES_WADDR  = 0x1000
+constant VRAM_BG_MAP_WADDR    = 0x0000
+constant VRAM_OBJ_TILES_WADDR = 0x6000
 
 
 constant N_BITS = 12;
@@ -130,6 +131,12 @@ allocate(hdmaTable3_a, lowram, 0x200)
 allocate(hdmaTable3_b, lowram, 0x200)
 allocate(hdmaTable4_a, lowram, 0x200)
 allocate(hdmaTable4_b, lowram, 0x200)
+
+
+// The number of times the HDMA tables have been displayed
+// (4x 0-9 digits)
+allocate(readCounterDigits, lowram, 4)
+constant readCounterDigits_size = 4
 
 
 // DB = 0x80
@@ -237,7 +244,10 @@ i16()
     sta.w   BG12NBA
     sta.w   BG34NBA
 
-    lda.b   #TM.bg1 | TM.bg2 | TM.bg3 | TM.bg4
+    lda.b   #OBSEL.size.s8_32 | (VRAM_OBJ_TILES_WADDR / OBSEL.base.walign) << OBSEL.base.shift
+    sta.w   OBSEL
+
+    lda.b   #TM.bg1 | TM.bg2 | TM.bg3 | TM.bg4 | TM.obj
     sta.w   TM
 
 
@@ -267,14 +277,36 @@ i16()
     stx.w   VMADD
     Dma.ForceBlank.ToVram(Resources.Bg_Tilemap)
 
-
     ldx.w   #VRAM_BG_TILES_WADDR
     stx.w   VMADD
     Dma.ForceBlank.ToVram(Resources.Bg_Tiles)
 
+    ldx.w   #VRAM_OBJ_TILES_WADDR
+    stx.w   VMADD
+    Dma.ForceBlank.ToVram(Resources.Obj_Tiles)
+
     stz.w   CGADD
     Dma.ForceBlank.ToCgram(Resources.Palette)
     Dma.ForceBlank.ToCgram(Resources.Palette)
+    Dma.ForceBlank.ToCgram(Resources.ObjPalette)
+
+    stz.w   OAMADDL
+    stz.w   OAMADDL
+    Dma.ForceBlank.ToOam(Resources.Oam)
+
+    // Clear Hi table
+    ldx.w   #128 * 2
+    stx.w   OAMADD
+    stz.w   OAMDATA
+
+
+    // Reset readCounterDigits
+    ldx.w   #readCounterDigits_size - 1
+    lda.b   #9
+    -
+        sta.w   readCounterDigits,x
+        dex
+        bpl     -
 
 
     ldx.w   #0
@@ -494,6 +526,19 @@ a8()
         bpl     -
 
 
+    // Increment read counter digits
+    ldx.w   #readCounterDigits_size - 1
+    -
+        inc.w   readCounterDigits,x
+        lda.w   readCounterDigits,x
+        cmp.b   #10
+        bcc     +
+            stz.w   readCounterDigits,x
+            dex
+            bpl     -
+    +
+
+
     WaitForStartOfVBlank()
 
     ldy.b   currentHdmaTable
@@ -520,6 +565,20 @@ a8()
     lda.b   #HDMAEN.dma7 | HDMAEN.dma6 | HDMAEN.dma5 | HDMAEN.dma4
     sta.w   HDMAEN
 
+
+    // Transfer readCounterDigits to OAM
+    variable _i = 0
+    while _i < readCounterDigits_size {
+        ldx.w   #_i * 2 + 1
+        stx.w   OAMADD
+
+        lda.w   readCounterDigits + _i
+        sta.w   OAMDATA
+        stz.w   OAMDATA  // OAMDATA is a write-twice register when writing to the low-table
+
+        _i = _i + 1
+    }
+
     rts
 }
 
@@ -538,8 +597,9 @@ HdmaTable4_TableAddr:
 
 
 namespace Resources {
-    insert Bg_Tiles,       "../../gen/test-patterns/scanline-bit-pattern.2bpp"
-    insert Bg_Tilemap,     "../../gen/test-patterns/scanline-bit-pattern.tilemap"
+    insert Bg_Tiles,    "../../gen/test-patterns/scanline-bit-pattern.2bpp"
+    insert Bg_Tilemap,  "../../gen/test-patterns/scanline-bit-pattern.tilemap"
+    insert Obj_Tiles,   "../../gen/test-patterns/obj-digits-4bpp-tiles.tiles"
 
     Palette:
         dw  0, 0, ToPalette( 6,  6,  0), ToPalette(31, 31,  0)  // B (yellow)
@@ -564,6 +624,19 @@ namespace Resources {
 
     constant Palette.size = pc() - Palette
     assert(Palette.size == 16 * 4 * 2)
+
+
+    insert ObjPalette, "../../gen/test-patterns/obj-digits-4bpp-tiles.pal"
+
+
+    Oam:
+        variable _i = 0
+        while _i < readCounterDigits_size {
+            db  218 + _i * 6, 16, 0, 0
+
+            _i = _i + 1
+        }
+    constant Oam.size = pc() - Oam
 }
 
 finalizeMemory()
