@@ -36,7 +36,7 @@ define VERSION = 0
 
 architecture wdc65816-strict
 
-include "../common.inc"
+include "../../common.inc"
 
 createCodeBlock(code,       0x808000, 0x80bfff)
 createDataBlock(rodata0,    0x80c000, 0x80ff80)
@@ -54,10 +54,10 @@ constant VRAM_TEXTBUFFER_MAP_WADDR   = VRAM_BG1_MAP_WADDR
 constant VRAM_TEXTBUFFER_TILES_WADDR = VRAM_BG1_TILES_WADDR
 
 
-include "../reset_handler.inc"
-include "../break_handler.inc"
-include "../dma_forceblank.inc"
-include "../textbuffer.inc"
+include "../../reset_handler.inc"
+include "../../break_handler.inc"
+include "../../dma_forceblank.inc"
+include "../../textbuffer.inc"
 
 // No Vblank interrupts
 constant NmiHandler = BreakHandler
