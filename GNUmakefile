@@ -115,6 +115,11 @@ QUICK_MODEL_1_DMA_CRASH_BINARIES := $(filter bin/hardware-glitch-tests/quick-mod
 $(QUICK_MODEL_1_DMA_CRASH_BINARIES): $(QUICK_MODEL_1_DMA_CRASH_INC_FILES)
 
 
+AUTO_JOYPAD_INC_FILES := $(wildcard src/hardware-tests/auto-joypad/*.inc)
+AUTO_JOYPAD_BINARIES := $(filter bin/hardware-tests/auto-joypad/%.sfc, $(BINARIES))
+
+$(AUTO_JOYPAD_BINARIES): $(AUTO_JOYPAD_INC_FILES)
+
 
 .PHONY: resources
 resources: $(RESOURCES)
