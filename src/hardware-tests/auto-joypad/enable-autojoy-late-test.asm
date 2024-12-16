@@ -115,6 +115,8 @@ namespace TestData {
         _TestRow({vtime}, 200)
     }
 
+    constant DATA_VERSION = 1
+
     _Scanlines(224)
     _Scanlines(225)
     _Scanlines(226)
@@ -347,9 +349,10 @@ i16()
 rodata(rodata0)
 TitleAndVersionStr:
 evaluate TEST_VERSION = DoTest.TEST_VERSION
-    db  "\n", {TEST_NAME}, "\nversion {TEST_VERSION}", "\n\n", {TEST_INSTRUCTIONS}, 0
+evaluate DATA_VERSION = TestData.DATA_VERSION
+    db  "\n", {TEST_NAME}, "\nversion {TEST_VERSION}-{DATA_VERSION}", "\n\n", {TEST_INSTRUCTIONS}, 0
 
-assert({VERSION} == {TEST_VERSION})
+assert({VERSION} == {TEST_VERSION} + {DATA_VERSION} - 1)
 
 namespace Resources {
 
