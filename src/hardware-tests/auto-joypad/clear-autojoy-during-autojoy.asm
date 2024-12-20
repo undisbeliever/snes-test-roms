@@ -1,6 +1,6 @@
 // Clear auto joypad flag during auto-joypad read test (multiple scanlines)
 //
-// See _clear-autojoy-during-autojoy.inc for test details
+// See _modify-autojoy-during-autojoy.inc for test details
 //
 //
 // SPDX-FileCopyrightText: © 2024 Marcus Rowe <undisbeliever@gmail.com>
@@ -30,7 +30,7 @@
 define ROM_NAME = "CLEAR AUTOJOY TEST"
 
 define TEST_NAME = "Clear AUTOJOY during AUTOJOY"
-define VERSION = 2
+define VERSION = 3
 
 namespace TestData {
     constant DATA_VERSION = 2
@@ -41,5 +41,25 @@ namespace TestData {
     array[N_TESTS] htime = 200,  20, 200,  20, 200,  20, 200,  20, 200
 }
 
-include "_clear-autojoy-during-autojoy.inc"
+
+constant AUTO_JOY_ENABLED_BEFORE_IRQ = 1
+
+
+// Disables IRQ Interrupts and auto joypad reading
+// Assumes IRQ interrupt set in DoTest
+//
+// A = NMITIMEN.autoJoy
+// DB = 80
+// D = $4200
+inline IrqCode() {
+    constant IRQ_VERSION = 1
+
+    assert8a()
+
+    // A = NMITIMEN.autoJoy
+    stz.b   NMITIMEN
+}
+
+
+include "_modify-autojoy-during-autojoy.inc"
 

@@ -1,7 +1,7 @@
-// Clear auto joypad flag during auto-joypad read tests.
+// Modify auto joypad enable flag during auto-joypad read tests.
 //
-// These tests uses IRQ to disable auto-joypad read (1 to 0 transition for NMITIMEN.bit0)
-// while automatic joypad read is currently active at various H/V positions and prints:
+// These tests uses IRQ to modify auto-joypad read (NMITIMEN.bit0)
+// while automatic joypad read is normally active at various H/V positions and prints:
 //  * How many times the auto-joy flag is 1
 //  * The output of the JOY1 register after auto-joypad read
 //  * The output of manually reading the JOYSER0 joypad register 16 times
@@ -172,7 +172,7 @@ i16()
 code()
 function DoTest {
     // MUST Update this constant if the test changes
-    constant TEST_VERSION = 1
+    constant TEST_VERSION = 2
 
     phd
     pea $4200
@@ -215,7 +215,9 @@ function DoTest {
     ldy.w   TestData.VTime,x
     sty.b   VTIME
 
-    lda.b   #NMITIMEN.vCounter | NMITIMEN.hCounter | NMITIMEN.autoJoy
+    assert(AUTO_JOY_ENABLED_BEFORE_IRQ & 1 == AUTO_JOY_ENABLED_BEFORE_IRQ)
+
+    lda.b   #NMITIMEN.vCounter | NMITIMEN.hCounter | (AUTO_JOY_ENABLED_BEFORE_IRQ & 1)
     bit.b   TIMEUP      // clear IRQ flag
     sta.b   NMITIMEN
 
@@ -303,7 +305,7 @@ a8()
 iu()
 code()
 function IrqHandler {
-    stz.b   NMITIMEN
+    IrqCode()
 
     // Clear IRQ flag
     bit.b   TIMEUP
@@ -378,7 +380,7 @@ evaluate TEST_VERSION = DoTest.TEST_VERSION
 evaluate DATA_VERSION = TestData.DATA_VERSION
     db  "\n", {TEST_NAME}, "\nversion {TEST_VERSION}-{DATA_VERSION}", "\n\n", {TEST_INSTRUCTIONS}, 0
 
-assert({VERSION} == {TEST_VERSION} + {DATA_VERSION} - 1)
+assert({VERSION} == {TEST_VERSION} + {DATA_VERSION} + IrqHandler.IRQ_VERSION - 2)
 
 namespace Resources {
 

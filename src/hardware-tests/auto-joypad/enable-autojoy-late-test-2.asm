@@ -1,4 +1,4 @@
-// Clear auto joypad flag during the first VBlank scanline test
+// Enable auto joypad late using IRQ test
 //
 // See _modify-autojoy-during-autojoy.inc for test details
 //
@@ -26,10 +26,9 @@
 //
 //    3. This notice may not be removed or altered from any source distribution.
 
+define ROM_NAME = "EN AUTOJOY LATE 2"
 
-define ROM_NAME = "CLEAR AUTOJOY VB SL"
-
-define TEST_NAME = "Clear AUTOJOY on\nfirst VBlank scanline"
+define TEST_NAME = "Enable AUTOJOY late test 2"
 define VERSION = 2
 
 namespace TestData {
@@ -42,8 +41,7 @@ namespace TestData {
 }
 
 
-constant AUTO_JOY_ENABLED_BEFORE_IRQ = 1
-
+constant AUTO_JOY_ENABLED_BEFORE_IRQ = 0
 
 // Disables IRQ Interrupts and auto joypad reading
 // Assumes IRQ interrupt set in DoTest
@@ -57,7 +55,7 @@ inline IrqCode() {
     assert8a()
 
     // A = NMITIMEN.autoJoy
-    stz.b   NMITIMEN
+    sta.b   NMITIMEN
 }
 
 
