@@ -30,14 +30,14 @@
 define ROM_NAME = "CLEAR AUTOJOY TEST"
 
 define TEST_NAME = "Clear AUTOJOY during AUTOJOY"
-define VERSION = 1
+define VERSION = 2
 
 namespace TestData {
-    constant DATA_VERSION = 1
+    constant DATA_VERSION = 2
 
     constant N_TESTS = 9
 
-    array[N_TESTS] vtime = 224, 225, 225, 226, 226, 227, 227, 228, 227
+    array[N_TESTS] vtime = 224, 225, 225, 226, 226, 227, 227, 228, 228
     array[N_TESTS] htime = 200,  20, 200,  20, 200,  20, 200,  20, 200
 }
 
