@@ -29,7 +29,7 @@
 define ROM_NAME = "EN AUTOJOY LATE 2"
 
 define TEST_NAME = "Enable AUTOJOY late test 2"
-define VERSION = 2
+define VERSION = 3
 
 namespace TestData {
     constant DATA_VERSION = 1
@@ -41,12 +41,18 @@ namespace TestData {
 }
 
 
+constant JOYSER_LATCH_START_VALUE = 0
 constant AUTO_JOY_ENABLED_BEFORE_IRQ = 0
 
-// Disables IRQ Interrupts and auto joypad reading
+
+// Disables Interrupts and
+//  * on the first IRQ of the test: A = 0 and IrqCode disables auto-joypad.
+//  * on the second IRQ of the test: A is set and IrqCode enables auto-joypad.
+//
+// ::HACK CPU registers are setup before IRQ fires::
 // Assumes IRQ interrupt set in DoTest
 //
-// A = NMITIMEN.autoJoy
+// A = NMITIMEN.autoJoy OR 0
 // DB = 80
 // D = $4200
 inline IrqCode() {
@@ -54,7 +60,7 @@ inline IrqCode() {
 
     assert8a()
 
-    // A = NMITIMEN.autoJoy
+    // A = NMITIMEN.autoJoy OR 0
     sta.b   NMITIMEN
 }
 

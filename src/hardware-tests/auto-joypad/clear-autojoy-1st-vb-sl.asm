@@ -30,7 +30,7 @@
 define ROM_NAME = "CLEAR AUTOJOY VB SL"
 
 define TEST_NAME = "Clear AUTOJOY on\nfirst VBlank scanline"
-define VERSION = 2
+define VERSION = 3
 
 namespace TestData {
     constant DATA_VERSION = 1
@@ -42,13 +42,18 @@ namespace TestData {
 }
 
 
+constant JOYSER_LATCH_START_VALUE = 0
 constant AUTO_JOY_ENABLED_BEFORE_IRQ = 1
 
 
-// Disables IRQ Interrupts and auto joypad reading
+// Disables IRQ Interrupts and
+//  * on the first IRQ of the test: A = 0 and IrqCode disables auto-joypad.
+//  * on the second IRQ of the test: A is set and IrqCode disables auto-joypad.
+//
+// ::HACK CPU registers are setup before IRQ fires::
 // Assumes IRQ interrupt set in DoTest
 //
-// A = NMITIMEN.autoJoy
+// A = NMITIMEN.autoJoy OR 0
 // DB = 80
 // D = $4200
 inline IrqCode() {
@@ -56,7 +61,7 @@ inline IrqCode() {
 
     assert8a()
 
-    // A = NMITIMEN.autoJoy
+    // Disable IRQ interrupts and auto-joypad reading
     stz.b   NMITIMEN
 }
 

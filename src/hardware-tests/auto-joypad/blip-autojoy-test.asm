@@ -30,7 +30,7 @@
 define ROM_NAME = "BLIP AUTOJOY TEST"
 
 define TEST_NAME = "AUTOJOY blip test\n(1-0-1 to AUTOJOY enable)"
-define VERSION = 2
+define VERSION = 3
 
 namespace TestData {
     constant DATA_VERSION = 1
@@ -42,13 +42,18 @@ namespace TestData {
 }
 
 
+constant JOYSER_LATCH_START_VALUE = 0
 constant AUTO_JOY_ENABLED_BEFORE_IRQ = 1
 
 
-// Clears the quickly sets the NMITIMEN.autoJoy flag
+// Disables Interrupts and
+//  * on the first IRQ of the test: A = 0 and IrqCode disables auto-joypad.
+//  * on the second IRQ of the test: A is set and IrqCode clears and then quickly sets the auto-joypad enable flag.
+//
+// ::HACK CPU registers are setup before IRQ fires::
 // Assumes IRQ interrupt set in DoTest
 //
-// A = NMITIMEN.autoJoy
+// A = NMITIMEN.autoJoy OR 0
 // DB = 80
 // D = $4200
 inline IrqCode() {
@@ -57,7 +62,7 @@ inline IrqCode() {
     assert8a()
 
     stz.b   NMITIMEN
-    // A = NMITIMEN.autoJoy
+    // A = NMITIMEN.autoJoy OR 0
     sta.b   NMITIMEN
 }
 

@@ -1,13 +1,13 @@
 // Modify auto joypad enable flag during auto-joypad read tests.
 //
-// These tests uses IRQ to modify auto-joypad read (NMITIMEN.bit0)
-// while automatic joypad read is normally active at various H/V positions and prints:
+// These tests uses IRQ to modify auto-joypad read (NMITIMEN.bit0) or joypad-latch (write
+// JOYSER0.bit0) while automatic joypad read is normally active at various H/V positions and prints:
 //  * How many times the auto-joy flag is 1
 //  * The output of the JOY1 register after auto-joypad read
 //  * The output of manually reading the JOYSER0 joypad register 16 times
 //
 // Be aware, the VTIME/HTIME is the time of the IRQ interrupt, it is not the position of the
-// NMITIMEN write.
+// NMITIMEN/JOYSER0 write.
 //
 //
 // SPDX-FileCopyrightText: © 2024 Marcus Rowe <undisbeliever@gmail.com>
@@ -172,7 +172,7 @@ i16()
 code()
 function DoTest {
     // MUST Update this constant if the test changes
-    constant TEST_VERSION = 2
+    constant TEST_VERSION = 3
 
     phd
     pea $4200
@@ -185,8 +185,7 @@ function DoTest {
 
     stz.b   NMITIMEN
 
-    // Enable IRQ interrupts
-    cli
+    sei
 
     assert(pc() >> 16 == TestData >> 16)
     ldy.w   #0
@@ -199,13 +198,25 @@ function DoTest {
     bit.b   TIMEUP      // clear IRQ flag
     sta.b   NMITIMEN
 
+    // Enable The first IRQ interrupt
+    lda.b   #0
+    cli
     wai
 
 
-    // Enable auto-joy
-    // Setup the IRQ that will disable auto-joy
+    // Disable IRQ interrupts
+    sei
     stz.b   NMITIMEN
 
+
+
+    // Initialise joypad latch
+    assert(JOYSER_LATCH_START_VALUE & 1 == JOYSER_LATCH_START_VALUE)
+    lda.b   #JOYSER_LATCH_START_VALUE
+    sta.w   JOYSER0
+
+
+    // Setup autojoy enable flag and enable interrupts
     ldx.w   testIndex
 
     assert(pc() >> 16 == TestData >> 16)
@@ -222,8 +233,7 @@ function DoTest {
     sta.b   NMITIMEN
 
 
-
-    // While the IRQ is pending, reading the auto-joy status flag a few hundred times
+    // While the IRQ is pending, read the auto-joy status flag a few hundred times
     // to see if auto-joy is active.
     //
     // The IRQ will clear the NMITIMEN in the middle of this loop
@@ -236,6 +246,10 @@ function DoTest {
     ldx.w   #600
     ldy.w   #0
     lda.b   #HVBJOY.autoJoy
+
+    // Enable The second IRQ interrupt
+    cli
+
     -
         bit.b   HVBJOY
         beq     +
@@ -295,16 +309,25 @@ function DoTest {
 }
 
 
-// Disables IRQ Interrupts and auto joypad reading
+// IRQ ISR.
+//
+// Invoked twice per test:
+//  * on the first IRQ of the test: A = 0
+//  * on the second IRQ of the test: A = NMITIMEN.autoJoy
+//
+// ::HACK CPU registers are setup before IRQ fires::
 // Assumes IRQ interrupt set in DoTest
 //
-// A = NMITIMEN.autoJoy
+// A = NMITIMEN.autoJoy OR 0
 // DB = 80
 // D = $4200
 a8()
 iu()
 code()
 function IrqHandler {
+    assert(NMITIMEN.autoJoy == HVBJOY.autoJoy)
+    assert(NMITIMEN.autoJoy == JOYSER0.latch)
+
     IrqCode()
 
     // Clear IRQ flag
