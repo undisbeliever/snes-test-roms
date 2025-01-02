@@ -11,10 +11,10 @@
 //     A value of 0xff is invalid.
 //
 //
-// SPDX-FileCopyrightText: © 2024 Marcus Rowe <undisbeliever@gmail.com>
+// SPDX-FileCopyrightText: © 2025 Marcus Rowe <undisbeliever@gmail.com>
 // SPDX-License-Identifier: Zlib
 //
-// Copyright © 2024 Marcus Rowe <undisbeliever@gmail.com>
+// Copyright © 2025 Marcus Rowe <undisbeliever@gmail.com>
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the
