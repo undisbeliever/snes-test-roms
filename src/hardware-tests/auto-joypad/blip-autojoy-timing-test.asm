@@ -173,7 +173,7 @@ inline _GenerateTest(evaluate TestNumber, evaluate DelayUntilClear, evaluate TbY
         // Enable autojoy
         sta.b   NMITIMEN
 
-        // Wait until start of VBlank
+        // Wait until start of auto-joy
         LoopUntilAutojoy:
             assert(NMITIMEN.autoJoy == HVBJOY.autoJoy)
             bit.b   HVBJOY
