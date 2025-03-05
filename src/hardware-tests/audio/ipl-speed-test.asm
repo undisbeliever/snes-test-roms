@@ -307,8 +307,8 @@ function Main {
         lda.b   frameCounter
         -
             inx
-            cpx.b   frameCounter
-            bne     -
+            cmp.b   frameCounter
+            beq     -
         phx
 
         // Output test results
