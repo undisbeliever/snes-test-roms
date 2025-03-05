@@ -277,6 +277,8 @@ function Main {
     evaluate TS = TRANSFER_SIZE
     TextBuffer.PrintStringLiteral("Transferring {TS} bytes\nusing the IPL\n\n")
 
+    TextBuffer.PrintStringLiteral(" #  VBlanks  Spinloop count")
+
     lda.b   #15
     sta.w   INIDISP
 
@@ -300,10 +302,18 @@ function Main {
 
         jsr     MeasureIpl
 
+        // Spinloop to the next VBlank
+        ldx.w   #0
+        lda.b   frameCounter
+        -
+            inx
+            cpx.b   frameCounter
+            bne     -
+        phx
 
         // Output test results
 
-        TextBuffer.PrintStringLiteral("Test 0x")
+        TextBuffer.PrintStringLiteral("\n ")
 
         inc.b   testCounter
 
@@ -315,10 +325,14 @@ function Main {
         lda.b   test_nVBlanks
         jsr     TextBuffer.PrintHexSpace_8A
 
-        TextBuffer.PrintStringLiteral("VBlanks\n")
+        TextBuffer.PrintStringLiteral("  0x")
+
+        ply
+        jsr     TextBuffer.PrintHexSpace_16Y
+
 
         ldx.w   TextBuffer.cursorIndex
-        cpx.w   #24 * 32
+        cpx.w   #25 * 32
         bcc     +
             TextBuffer.SetCursor(0, 3)
         +
